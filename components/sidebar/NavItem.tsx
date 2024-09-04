@@ -23,7 +23,7 @@ const NavItem: React.FC<NavItemProps> = ({ label, icon: Icon, url, external }) =
       target={external ? '_blank' : undefined}
     >
       <Icon size={18} />
-      <span>{label}</span>
+      {/* <span>{label}</span> */}
     </Link>
   );
 };

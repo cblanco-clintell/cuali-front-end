@@ -9,10 +9,36 @@ type ObjectiveDetailsProps = {
 
 const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selectedGroup, setSelectedGroup }) => {
     const [isOpen, setIsOpen] = useState(false); // Toggle collapsible card
+    const [showMore, setShowMore] = useState(false); // Toggle "View More"
 
     const toggleCollapse = () => setIsOpen(!isOpen);
+    const toggleShowMore = () => setShowMore(!showMore);
 
     const selectedGroupData = objective.groupSpecific.find((group: any) => group.groupName === selectedGroup);
+
+    // Example data for adjectives, nouns, verbs, and speakers
+    const adjectives = [
+        { word: "Innovative", percentage: 80 },
+        { word: "Fast", percentage: 65 },
+        { word: "Reliable", percentage: 50 },
+    ];
+
+    const nouns = [
+        { word: "Camera", percentage: 85 },
+        { word: "Battery", percentage: 75 },
+        { word: "Screen", percentage: 60 },
+    ];
+
+    const verbs = [
+        { word: "Capture", percentage: 90 },
+        { word: "Record", percentage: 70 },
+        { word: "Charge", percentage: 55 },
+    ];
+
+    const speakers = [
+        { name: "John Doe", percentage: 60 },
+        { name: "Jane Smith", percentage: 40 },
+    ];
 
     return (
         <div className="mb-4">
@@ -21,54 +47,23 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
                 onClick={toggleCollapse}
                 className="w-full text-left text-gray-900 font-semibold py-4 flex items-center justify-between border-b border-gray-300"
             >
-                <span>{objective.id}- {objective.title}</span>
-                <EmotionDots />
+                <span>{objective.id} - {objective.title}</span>
                 <span>{isOpen ? '▼' : '▶'}</span>
             </button>
 
             {isOpen && (
                 <div className="p-6 bg-white rounded-lg shadow-sm mt-4 border border-gray-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Left Column - General Info */}
-                        <div>
-                            <h4 className="text-lg font-semibold text-gray-900">General Conclusion</h4>
-                            <p className="text-gray-600 mb-4">{objective.generalConclusion}</p>
-
-                            <h4 className="text-lg font-semibold text-gray-900">General Insights</h4>
-                            <ul className="list-disc list-inside text-gray-600 mb-4">
-                                {objective.insights.map((insight: string, index: number) => (
-                                    <li key={index}>{insight}</li>
-                                ))}
-                            </ul>
-
-                            <h4 className="text-lg font-semibold text-gray-900">General Actions</h4>
-                            <ul className="list-disc list-inside text-gray-600 mb-4">
-                                {objective.actions.map((action: string, index: number) => (
-                                    <li key={index}>{action}</li>
-                                ))}
-                            </ul>
-
-                            {/* Add buttons below the general information */}
-                            <div className="space-y-4 mt-4">
-                                <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
-                                    View Emotions
-                                </button>
-                                <button className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">
-                                    View Adjectives, Verbs and Nouns
-                                </button>
-                                <button className="w-full bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600">
-                                    Ask Ali About this objective
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Right Column - Group-Specific Info with light background */}
-                        <div className="bg-gray-50 p-4 rounded-lg">
+                    {/* Grid layout for the table-like structure */}
+                    <div className="grid grid-cols-[1fr,3fr,3fr] gap-4">
+                        {/* First Row: Labels */}
+                        <div className="font-medium text-gray-900"></div>
+                        <div className="font-medium text-gray-900">General</div>
+                        <div className="font-medium text-gray-900">
                             <select
                                 id="group-select"
                                 value={selectedGroup}
                                 onChange={(e) => setSelectedGroup(e.target.value)}
-                                className="w-full p-2 border rounded-md mb-4"
+                                className="w-full p-2 border rounded-md"
                             >
                                 {objective.groupSpecific.map((group: any, index: number) => (
                                     <option key={index} value={group.groupName}>
@@ -76,28 +71,152 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
                                     </option>
                                 ))}
                             </select>
-
-                            {selectedGroupData && (
-                                <>
-                                    <h4 className="text-lg font-semibold text-gray-900">Group Conclusion</h4>
-                                    <p className="text-gray-600 mb-4">{selectedGroupData.conclusion}</p>
-
-                                    <h4 className="text-lg font-semibold text-gray-900">Group Insights</h4>
-                                    <ul className="list-disc list-inside text-gray-600 mb-4">
-                                        {selectedGroupData.insights.map((insight: string, index: number) => (
-                                            <li key={index}>{insight}</li>
-                                        ))}
-                                    </ul>
-
-                                    <h4 className="text-lg font-semibold text-gray-900">Group Actions</h4>
-                                    <ul className="list-disc list-inside text-gray-600">
-                                        {selectedGroupData.actions.map((action: string, index: number) => (
-                                            <li key={index}>{action}</li>
-                                        ))}
-                                    </ul>
-                                </>
-                            )}
                         </div>
+
+                        <hr className="col-span-3 my-4" />
+
+                        {/* Second Row: Conclusion */}
+                        <div className="text-gray-700 font-semibold">Conclusion</div>
+                        <div className="text-gray-600">{objective.generalConclusion}</div>
+                        <div className="text-gray-600">{selectedGroupData?.conclusion}</div>
+
+                        <hr className="col-span-3 my-4" />
+
+                        {/* Third Row: Insights */}
+                        <div className="text-gray-700 font-semibold">Insights</div>
+                        <div className="text-gray-600">
+                            <ul className="list-disc list-inside">
+                                {objective.insights.map((insight: string, index: number) => (
+                                    <li key={index}>{insight}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="text-gray-600">
+                            <ul className="list-disc list-inside">
+                                {selectedGroupData?.insights.map((insight: string, index: number) => (
+                                    <li key={index}>{insight}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <hr className="col-span-3 my-4" />
+
+                        {/* Fourth Row: Actions */}
+                        <div className="text-gray-700 font-semibold">Actions</div>
+                        <div className="text-gray-600">
+                            <ul className="list-disc list-inside">
+                                {objective.actions.map((action: string, index: number) => (
+                                    <li key={index}>{action}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="text-gray-600">
+                            <ul className="list-disc list-inside">
+                                {selectedGroupData?.actions.map((action: string, index: number) => (
+                                    <li key={index}>{action}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <hr className="col-span-3 my-4" />
+
+                        {/* Fifth Row: Emotions */}
+                        <div className="text-gray-700 font-semibold">Emotions</div>
+                        <div className="flex items-center">
+                            <EmotionDots /> {/* General Emotions */}
+                        </div>
+                        <div className="flex items-center">
+                            <EmotionDots /> {/* Group-Specific Emotions */}
+                        </div>
+
+                        <hr className="col-span-3 my-4" />
+
+                        {/* View More Button */}
+                        <div className="col-span-3">
+                            <button onClick={toggleShowMore} className="text-blue-500 underline">
+                                {showMore ? 'View Less' : 'View More'}
+                            </button>
+                        </div>
+
+                        {showMore && (
+                            <>
+                                <hr className="col-span-3 my-4" />
+
+                                {/* Sixth Row: Adjectives */}
+                                <div className="text-gray-700 font-semibold">Adjectives</div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {adjectives.map((adj, index) => (
+                                            <li key={index}>{adj.word} - {adj.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {adjectives.map((adj, index) => (
+                                            <li key={index}>{adj.word} - {adj.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <hr className="col-span-3 my-4" />
+
+                                {/* Seventh Row: Nouns */}
+                                <div className="text-gray-700 font-semibold">Nouns</div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {nouns.map((noun, index) => (
+                                            <li key={index}>{noun.word} - {noun.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {nouns.map((noun, index) => (
+                                            <li key={index}>{noun.word} - {noun.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <hr className="col-span-3 my-4" />
+
+                                {/* Eighth Row: Verbs */}
+                                <div className="text-gray-700 font-semibold">Verbs</div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {verbs.map((verb, index) => (
+                                            <li key={index}>{verb.word} - {verb.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {verbs.map((verb, index) => (
+                                            <li key={index}>{verb.word} - {verb.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <hr className="col-span-3 my-4" />
+
+                                {/* Ninth Row: Speakers */}
+                                <div className="text-gray-700 font-semibold">Speakers</div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {speakers.map((speaker, index) => (
+                                            <li key={index}>{speaker.name} - {speaker.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="text-gray-600">
+                                    <ul>
+                                        {speakers.map((speaker, index) => (
+                                            <li key={index}>{speaker.name} - {speaker.percentage}%</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
