@@ -9,7 +9,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="w-1/3 h-screen bg-gray-100 shadow-lg p-6 border-l border-solid border-zinc-300 flex flex-col justify-between">
+        <div className="w-full h-screen bg-gray-100 shadow-lg p-6 border-l border-solid border-zinc-300 flex flex-col justify-between">
             {/* Chatbot Header with Close Button */}
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold">Chatbot</h3>

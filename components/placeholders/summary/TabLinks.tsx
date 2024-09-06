@@ -10,10 +10,11 @@ const TabLinks: React.FC<TabLinksProps> = ({ defaultActiveTab }) => {
   const tabs = [
     { name: "Summary", href: "/projects/summary" },
     { name: "Emotions", href: "/projects/emotions" },
-    { name: "Keywords", href: "/projects/emotions" },
-    { name: "Speakers", href: "/projects/emotions" },
+    { name: "Keywords", href: "/projects/keywords" },
+    { name: "Speakers", href: "/projects/speakers" },
     { name: "Deliverables", href: "/projects/deliverables" },
     { name: "Config", href: "/projects/config" },
+    { name: "Groups", href: "/projects/groups" },
   ];
   const [activeTab, setActiveTab] = useState(defaultActiveTab || tabs[0].name);
 

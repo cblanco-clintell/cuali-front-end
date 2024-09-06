@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import EmotionDots from './EmotionDots';
+import ButtonGroup from './ButtonGroup';
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 type ObjectiveDetailsProps = {
     objective: any;
@@ -41,29 +43,30 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
     ];
 
     return (
-        <div className="mb-4">
-            {/* Collapsible card title with caret */}
+        <div className="mb-4 border border-gray-300 rounded-lg shadow-sm">
+            {/* Collapsible card title with caret, always inside border */}
             <button
                 onClick={toggleCollapse}
-                className="w-full text-left text-gray-900 font-semibold py-4 flex items-center justify-between border-b border-gray-300"
+                className="w-full text-left text-gray-900 font-semibold py-4 flex items-center px-4"
             >
-                <span>{objective.id} - {objective.title}</span>
-                <span>{isOpen ? '▼' : '▶'}</span>
+                {isOpen ? <FiChevronUp className="mr-2" /> : <FiChevronDown className="mr-2" />}
+                <span>{objective.title}</span>
             </button>
 
+            {/* Collapsible content */}
             {isOpen && (
-                <div className="p-6 bg-white rounded-lg shadow-sm mt-4 border border-gray-300">
+                <div className="p-6 bg-white border-t border-gray-300">
                     {/* Grid layout for the table-like structure */}
                     <div className="grid grid-cols-[1fr,3fr,3fr] gap-4">
                         {/* First Row: Labels */}
                         <div className="font-medium text-gray-900"></div>
-                        <div className="font-medium text-gray-900">General</div>
+                        <div className="font-medium text-gray-900 text-sm mt-2">General</div>
                         <div className="font-medium text-gray-900">
                             <select
                                 id="group-select"
                                 value={selectedGroup}
                                 onChange={(e) => setSelectedGroup(e.target.value)}
-                                className="w-full p-2 border rounded-md"
+                                className="w-full p-2 mb-2 border rounded-md text-xs"
                             >
                                 {objective.groupSpecific.map((group: any, index: number) => (
                                     <option key={index} value={group.groupName}>
@@ -73,26 +76,26 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
                             </select>
                         </div>
 
-                        <hr className="col-span-3 my-4" />
+                        <hr className="col-span-3 mb-4" />
 
                         {/* Second Row: Conclusion */}
-                        <div className="text-gray-700 font-semibold">Conclusion</div>
-                        <div className="text-gray-600">{objective.generalConclusion}</div>
-                        <div className="text-gray-600">{selectedGroupData?.conclusion}</div>
+                        <div className="text-gray-700 font-semibold text-sm">Conclusion</div>
+                        <div className="text-gray-600 text-sm">{objective.generalConclusion}</div>
+                        <div className="text-gray-600 text-sm">{selectedGroupData?.conclusion}</div>
 
                         <hr className="col-span-3 my-4" />
 
                         {/* Third Row: Insights */}
-                        <div className="text-gray-700 font-semibold">Insights</div>
+                        <div className="text-gray-700 font-semibold text-sm">Insights</div>
                         <div className="text-gray-600">
-                            <ul className="list-disc list-inside">
+                            <ul className="list-disc list-inside text-sm">
                                 {objective.insights.map((insight: string, index: number) => (
                                     <li key={index}>{insight}</li>
                                 ))}
                             </ul>
                         </div>
                         <div className="text-gray-600">
-                            <ul className="list-disc list-inside">
+                            <ul className="list-disc list-inside text-sm">
                                 {selectedGroupData?.insights.map((insight: string, index: number) => (
                                     <li key={index}>{insight}</li>
                                 ))}
@@ -104,45 +107,25 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
                         {/* Fourth Row: Actions */}
                         <div className="text-gray-700 font-semibold">Actions</div>
                         <div className="text-gray-600">
-                            <ul className="list-disc list-inside">
+                            <ul className="list-disc list-inside text-sm">
                                 {objective.actions.map((action: string, index: number) => (
                                     <li key={index}>{action}</li>
                                 ))}
                             </ul>
                         </div>
                         <div className="text-gray-600">
-                            <ul className="list-disc list-inside">
+                            <ul className="list-disc list-inside text-sm">
                                 {selectedGroupData?.actions.map((action: string, index: number) => (
                                     <li key={index}>{action}</li>
                                 ))}
                             </ul>
                         </div>
 
-                        <hr className="col-span-3 my-4" />
-
-                        {/* Fifth Row: Emotions */}
-                        <div className="text-gray-700 font-semibold">Emotions</div>
-                        <div className="flex items-center">
-                            <EmotionDots /> {/* General Emotions */}
-                        </div>
-                        <div className="flex items-center">
-                            <EmotionDots /> {/* Group-Specific Emotions */}
-                        </div>
-
-                        <hr className="col-span-3 my-4" />
-
-                        {/* View More Button */}
-                        <div className="col-span-3">
-                            <button onClick={toggleShowMore} className="text-blue-500 underline">
-                                {showMore ? 'View Less' : 'View More'}
-                            </button>
-                        </div>
-
                         {showMore && (
                             <>
                                 <hr className="col-span-3 my-4" />
 
-                                {/* Sixth Row: Adjectives */}
+                                {/* Adjectives */}
                                 <div className="text-gray-700 font-semibold">Adjectives</div>
                                 <div className="text-gray-600">
                                     <ul>
@@ -161,7 +144,7 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
 
                                 <hr className="col-span-3 my-4" />
 
-                                {/* Seventh Row: Nouns */}
+                                {/* Nouns */}
                                 <div className="text-gray-700 font-semibold">Nouns</div>
                                 <div className="text-gray-600">
                                     <ul>
@@ -180,7 +163,7 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
 
                                 <hr className="col-span-3 my-4" />
 
-                                {/* Eighth Row: Verbs */}
+                                {/* Verbs */}
                                 <div className="text-gray-700 font-semibold">Verbs</div>
                                 <div className="text-gray-600">
                                     <ul>
@@ -199,7 +182,7 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
 
                                 <hr className="col-span-3 my-4" />
 
-                                {/* Ninth Row: Speakers */}
+                                {/* Speakers */}
                                 <div className="text-gray-700 font-semibold">Speakers</div>
                                 <div className="text-gray-600">
                                     <ul>
@@ -218,6 +201,9 @@ const ObjectiveDetails: React.FC<ObjectiveDetailsProps> = ({ objective, selected
                             </>
                         )}
                     </div>
+
+                    <hr className="col-span-3 my-4" />
+                    <div><ButtonGroup /></div>    
                 </div>
             )}
         </div>

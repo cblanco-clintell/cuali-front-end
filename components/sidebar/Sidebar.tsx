@@ -8,7 +8,7 @@ const menuItemsTop = [
   { label: 'Home', icon: FiHome, url: '/' },
   { label: 'Ask Ali', icon: FiUsers, url: '/ali' },
   { label: 'My Studies', icon: FiFolder, url: '/studies' },
-  { label: 'Deliverables', icon: FiFolder, url: '/deliverables' },
+  { label: 'Deliverables', icon: FiFolder, url: '/projects/summary' },
 ];
 
 const menuItemsBottom = [

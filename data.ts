@@ -259,3 +259,93 @@ export const studyDetails = {
     },
   ],
 };
+
+export const categories = [
+  {
+    name: "Camera Performance",
+    sentiment: "positive",
+    value: 7.2,
+    keywords: [
+      { name: "4K", sentiment: "positive", value: 8.0 },
+      { name: "HDR", sentiment: "positive", value: 7.5 },
+      { name: "Nightography", sentiment: "neutral", value: 6.0 },
+      { name: "Low Light", sentiment: "negative", value: 4.5 },
+      { name: "Stabilization", sentiment: "positive", value: 8.2 },
+      { name: "Autofocus", sentiment: "neutral", value: 6.7 },
+      { name: "Exposure", sentiment: "positive", value: 7.3 },
+      { name: "Shutter Speed", sentiment: "neutral", value: 6.2 },
+      { name: "Grainy", sentiment: "negative", value: 3.8 },
+      { name: "Wide Angle", sentiment: "positive", value: 8.1 },
+      { name: "Portrait Mode", sentiment: "neutral", value: 6.9 },
+      { name: "Zoom", sentiment: "negative", value: 4.3 },
+      { name: "Color Balance", sentiment: "positive", value: 7.9 },
+      { name: "Dynamic Range", sentiment: "neutral", value: 6.4 },
+      { name: "Sharpness", sentiment: "positive", value: 7.6 },
+    ],
+  },
+  {
+    name: "Battery Life",
+    sentiment: "neutral",
+    value: 6.8,
+    keywords: [
+      { name: "Fast Charging", sentiment: "positive", value: 2.2 },
+      { name: "Overheating", sentiment: "negative", value: 4.2 },
+      { name: "Battery Duration", sentiment: "neutral", value: 3.5 },
+      { name: "Standby Time", sentiment: "positive", value: 7.8 },
+      { name: "Power Saving Mode", sentiment: "positive", value: 7.3 },
+      { name: "Wireless Charging", sentiment: "neutral", value: 6.0 },
+      { name: "Charge Cycles", sentiment: "negative", value: 4.9 },
+      { name: "Heat Dissipation", sentiment: "negative", value: 3.8 },
+      { name: "Discharge Rate", sentiment: "neutral", value: 5.9 },
+      { name: "Battery Health", sentiment: "positive", value: 7.6 },
+      { name: "Charging Port", sentiment: "neutral", value: 6.4 },
+      { name: "Charger Compatibility", sentiment: "positive", value: 7.1 },
+      { name: "Battery Swelling", sentiment: "negative", value: 3.4 },
+      { name: "Fast Drain", sentiment: "negative", value: 4.5 },
+      { name: "Battery Indicator", sentiment: "neutral", value: 6.2 },
+    ],
+  },
+  {
+    name: "Display Quality",
+    sentiment: "negative",
+    value: 5.5,
+    keywords: [
+      { name: "Brightness", sentiment: "positive", value: 7.0 },
+      { name: "Resolution", sentiment: "neutral", value: 6.0 },
+      { name: "Color Accuracy", sentiment: "negative", value: 4.8 },
+      { name: "Refresh Rate", sentiment: "positive", value: 8.0 },
+      { name: "Screen Flicker", sentiment: "negative", value: 4.1 },
+      { name: "Viewing Angles", sentiment: "neutral", value: 5.9 },
+      { name: "Pixel Density", sentiment: "positive", value: 7.9 },
+      { name: "Screen Durability", sentiment: "neutral", value: 6.3 },
+      { name: "Touch Responsiveness", sentiment: "positive", value: 7.7 },
+      { name: "Edge Bleeding", sentiment: "negative", value: 3.5 },
+      { name: "Blue Light Filter", sentiment: "positive", value: 7.1 },
+      { name: "Anti-Glare", sentiment: "neutral", value: 6.5 },
+      { name: "Contrast Ratio", sentiment: "positive", value: 7.4 },
+      { name: "Backlight Uniformity", sentiment: "negative", value: 4.3 },
+      { name: "OLED Burn-In", sentiment: "negative", value: 3.9 },
+    ],
+  },
+];
+
+export const conversationExcerpts = [
+  {
+    id: 1,
+    group: "Review Google Pixel 8",
+    text: "The 4K performance in daylight is excellent...",
+    keywords: ["4K"],
+  },
+  {
+    id: 2,
+    group: "Review iPhone 14",
+    text: "Nightography has improved significantly...",
+    keywords: ["Nightography"],
+  },
+  {
+    id: 3,
+    group: "Battery Life Review",
+    text: "Fast charging works well, but overheating happens sometimes...",
+    keywords: ["Fast Charging", "Overheating"],
+  }
+];
