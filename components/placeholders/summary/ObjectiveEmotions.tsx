@@ -106,7 +106,8 @@ const ObjectiveEmotions: React.FC<ObjectiveEmotionsProps> = ({ objective, select
                 <div className="font-medium text-gray-900 text-sm mt-2">General</div>
                 <WordCloud height={500} words={generalWords} />
               </div>
-              
+              <div>
+
               <EmotionBar words={generalWords} />
             </div>
 
