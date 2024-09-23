@@ -13,6 +13,8 @@ module.exports = {
 				primary: '#9493FF',
 				accent: '#E8704E',
 				default: '#6C6C6C',
+				"purple": '#9493FF',
+				"purple-light": '#E6E5FB',
 			},
 			keyframes: {
 				fadeIn: {

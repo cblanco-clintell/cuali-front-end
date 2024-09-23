@@ -1,14 +1,13 @@
 "use client";
 import React from "react";
 import Profile from "./Profile";
-import { FiHome, FiFolder, FiUsers, FiLifeBuoy, FiSettings, FiPhone, FiPhoneForwarded, FiMessageSquare } from "react-icons/fi";
+import { FiHome, FiFolder, FiUsers, FiLifeBuoy, FiSettings, FiMessageSquare} from "react-icons/fi";
 import NavItem from "./NavItem";
 
 const menuItemsTop = [
   { label: 'Home', icon: FiHome, url: '/' },
-  { label: 'Ask Ali', icon: FiUsers, url: '/ali' },
-  { label: 'My Studies', icon: FiFolder, url: '/studies' },
-  { label: 'Deliverables', icon: FiFolder, url: '/projects/summary' },
+  { label: 'My Studies', icon: FiFolder, url: '/projects' },
+  { label: 'Ask Ali', icon: FiMessageSquare, url: '/ali' },
 ];
 
 const menuItemsBottom = [

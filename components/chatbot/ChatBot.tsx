@@ -1,34 +1,12 @@
-"use client";
+import React from 'react';
+import ChatBotBox from './ChatBotBox';
 
-import { ChatBotForm } from './ChatBotForm';
-import { ChatBotMessage } from './ChatBotMessage';
-import { useState } from 'react';
-import './ChatBot.css';
+const ChatBot = () => {
+  return (
+    <div className="p-4 m-10 rounded-xl shadow flex flex-col justify-between items-center">
+      <ChatBotBox />
+    </div>
+  );
+};
 
-export default function ChatBot() {
-    const [messages, setMessages] = useState<string[]>([]);
-
-    const handleSendMessage = (message: string) => {
-        setMessages([...messages, message]);
-    };
-
-    return (
-        <div className="dashboard-card ali">
-            <div className="askali-container">
-                <div className="askali">
-                    {messages.length === 0 && (
-                        <img
-                            src="/img/ali-text.svg"
-                            alt="Chatbot"
-                            className="main-ali img-fluid"
-                        />
-                    )}
-                    {messages.map((message, index) => (
-                        <ChatBotMessage key={index} message={message} />
-                    ))}
-                </div>
-                <ChatBotForm onSendMessage={handleSendMessage} />
-            </div>
-        </div>
-    );
-}
+export default ChatBot;

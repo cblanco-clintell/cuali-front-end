@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { SocialButtons } from '@/components/common';
-import useLogin from '@/hooks/placeholders/useLogin';
+import useLogin from '@/hooks/use-login';
 import { Form } from '@/components/forms';
 
 export default function LoginForm() {
