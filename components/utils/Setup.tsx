@@ -36,5 +36,16 @@ export default function Setup() {
         }
     }, [projects, projectsIsLoading, projectsIsFetching, dispatch]);
 
-    return <ToastContainer />;
+    return         <ToastContainer
+    position="bottom-center"
+    autoClose={5000}
+    hideProgressBar={false}
+    newestOnTop={true}
+    closeOnClick
+    rtl={false}
+    pauseOnFocusLoss
+    draggable
+    pauseOnHover
+    progressClassName="bg-violet-500"
+/>;
 }

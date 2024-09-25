@@ -1,8 +1,6 @@
 "use client";
 import React from 'react';
 import { FiBookmark } from "react-icons/fi";
-import { useUpdateConversationMutation } from '@/redux/features/ali/aliApiSlice';
-import { toast } from 'react-toastify';
 
 interface ChatBotSidebarProps {
   conversations: any[];
@@ -10,6 +8,7 @@ interface ChatBotSidebarProps {
   isLoading: boolean;
   error: any;
   selectedConversationId: number | null;
+  handleToggleSaved: (conversation: any) => void; // Added prop to handle save toggle
 }
 
 const truncateText = (text: string, maxLength: number) => {
@@ -25,31 +24,10 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
   isLoading,
   error,
   selectedConversationId,
+  handleToggleSaved, // Get the function as a prop
 }) => {
-  const [updateConversation] = useUpdateConversationMutation(); // Mutation to update the conversation
-
   if (isLoading) return <p>Loading conversations...</p>;
   if (error) return <p>Error loading conversations.</p>;
-
-  // Handle toggle saved status
-  const handleToggleSaved = async (conversation) => {
-    try {
-      const result = await updateConversation({
-        conversationId: conversation.id,
-        data: { saved: !conversation.saved }, // Toggle the saved field
-      });
-  
-      // Check if the result has an error property
-      if (result.error) {
-        throw new Error(result.error.data?.message || 'Failed to update saved status');
-      }
-  
-      toast.success('Saved status updated successfully.');
-    } catch (err) {
-      console.error('Failed to toggle saved status:', err.message);
-      toast.error(err.message || 'Failed to update saved status.');
-    }
-  };
 
   return (
     <aside className="px-4 py-6 shadow border-r border-zinc-300 flex flex-col items-start h-[87vh]">
@@ -71,10 +49,10 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
 
               {/* Bookmark icon with toggle saved functionality */}
               <FiBookmark
-                className={`text-zinc-800 text-xs font-normal ${conversation.saved ? 'fill-current text-yellow-400' : ''}`}
+                className={`text-zinc-800 text-xs font-normal ${conversation.saved ? 'fill-current' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent the click from triggering the handleConversationClick
-                  handleToggleSaved(conversation); // Toggle saved status
+                  handleToggleSaved(conversation); // Call the prop function to toggle saved status
                 }}
               />
             </div>
