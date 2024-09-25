@@ -4,7 +4,10 @@ import React, { useState } from 'react';
 import ChatBotInput from './ChatBotInput';
 import ChatBotResult from './ChatBotResult';
 import ChatBotSidebar from './ChatBotSidebar';
-import { useFetchProjectConversationsQuery, useFetchConversationResultsQuery } from '@/redux/features/ali/aliApiSlice';
+import {
+  useFetchProjectConversationsQuery,
+  useFetchConversationResultsQuery,
+} from '@/redux/features/ali/aliApiSlice';
 import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 
