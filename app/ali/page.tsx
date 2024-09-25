@@ -3,11 +3,13 @@ import React from 'react';
 import ChatBot from '@/components/chatbot/ChatBot';
 import ChatBotSidebar from '@/components/chatbot/ChatBotSidebar';
 import { SidebarLayout } from '@/components/common';
+import Header from '@/components/header/Header';
 
 const ChatPage = () => {
     return (
         <SidebarLayout>
-            <div className="flex h-screen w-full">
+            <Header breadcrumbs={[{ title: 'Ali' }]} />
+            <div className="flex w-full">
                 {/* Sidebar */}
                 <div className="w-80 border-r border-gray-300">
                     <ChatBotSidebar />

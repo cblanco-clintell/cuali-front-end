@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatDate } from '@/utils/formatDate';
 import { FiFolder } from "react-icons/fi";
+import Link from 'next/link';
 
 interface ProjectCardProps {
   project: {
@@ -16,6 +17,7 @@ interface ProjectCardProps {
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
+    <Link href={`/projects/${project.id}`} className="block" key={project.id}>
     <article className="flex flex-col px-3 p-4 bg-white rounded-lg shadow-md">
       {/* Project Header */}
       <header className="">
@@ -40,5 +42,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </div>
       </footer>
     </article>
+    </Link>
   );
 };

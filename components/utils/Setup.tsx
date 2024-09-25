@@ -1,31 +1,40 @@
 'use client';
 
-import useVerify from '@/hooks/use-verify';
+import { useEffect, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+
+import useVerify from '@/hooks/use-verify';
 import { setUser } from '@/redux/features/user/userSlice';
+import { setProjects } from '@/redux/features/projects/projectSlice';
 import { useRetrieveProfileQuery } from '@/redux/features/auth/authApiSlice';
+import { useGetProjectsQuery } from '@/redux/features/projects/projectApiSlice';
 
 export default function Setup() {
-    useVerify();
+    useVerify(); // Assuming this is a hook for user/session verification
 
     const dispatch = useDispatch();
-    // const { data: profile, isLoading, isFetching, isError, error } = useRetrieveProfileQuery({});
 
-    // const storedCompanyId = useMemo(() => {
-    //     return typeof window !== 'undefined' ? localStorage.getItem('selectedCompanyId') : null;
-    // }, []);
+    // Fetch user profile
+    // const { data: profile, isLoading: profileIsLoading, isFetching: profileIsFetching } = useRetrieveProfileQuery({});
 
+    // Fetch all projects
+    const { data: projects, isLoading: projectsIsLoading, isFetching: projectsIsFetching } = useGetProjectsQuery({});
+
+    // Effect to dispatch user profile data to Redux store
     // useEffect(() => {
-    //     if (isLoading || isFetching || !profile) {
-    //         return;
+    //     if (!profileIsLoading && !profileIsFetching && profile) {
+    //         dispatch(setUser(profile)); // Dispatch user data to Redux
     //     }
+    // }, [profile, profileIsLoading, profileIsFetching, dispatch]);
 
-    //     if (profile) {
-    //     }
-    // }, [profile, isLoading, isFetching, dispatch, storedCompanyId]);
+    // Effect to dispatch projects data to Redux store
+    useEffect(() => {
+        if (!projectsIsLoading && !projectsIsFetching && projects) {
+            dispatch(setProjects(projects)); // Dispatch projects data to Redux store
+        }
+    }, [projects, projectsIsLoading, projectsIsFetching, dispatch]);
 
     return <ToastContainer />;
 }

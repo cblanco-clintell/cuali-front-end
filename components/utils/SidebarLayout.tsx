@@ -9,10 +9,15 @@ interface SidebarLayoutProps {
 export default function SidebarLayout({ children, mainClassName }: SidebarLayoutProps) {
   return (
     <RequireAuth>
-      <div className="flex h-screen w-full">
-        <Sidebar />
-        <div className={`flex flex-col flex-grow bg-[#F5F6F7] ${mainClassName}`}>
-          <main className={`flex-grow px-4 pt-4 w-full mx-auto h-screen`}>{children}</main>
+      <div className="flex w-full h-screen">
+        {/* Sidebar - static, takes up fixed space */}
+        <div className="sticky top-0 h-screen">
+          <Sidebar />
+        </div>
+
+        {/* Main Content - scrollable */}
+        <div className={`flex flex-col flex-grow bg-[#F9FAFB] overflow-y-auto ${mainClassName}`}>
+          <main className={`flex-grow w-full mx-auto`}>{children}</main>
         </div>
       </div>
     </RequireAuth>
