@@ -30,7 +30,7 @@ const ChatBot = () => {
   const [updateConversation] = useUpdateConversationMutation(); // Mutation to update the conversation
 
   // Handle conversation click in the sidebar
-  const handleConversationClick = (conversationId) => {
+  const handleConversationClick = (conversationId: string) => {
     setSelectedConversation(conversationId); // Set the selected conversation
   };
 
@@ -67,7 +67,7 @@ const ChatBot = () => {
           isLoading={convLoading}
           error={convError}
           selectedConversationId={selectedConversation}
-          handleToggleSaved={handleToggleSaved} // Pass the toggle function to sidebar
+          handleToggleSaved={handleToggleSaved}
         />
       </div>
 
