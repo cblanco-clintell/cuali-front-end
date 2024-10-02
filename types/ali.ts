@@ -18,14 +18,15 @@ export interface AliResultType {
   response: string;
   saved: boolean;
   conversation_embedding: number[] | null;
-  details: {
-    studio_ids: number[];
-    segment_ids: number[];
-    conversation_ids: number[];
-    version: number;
-  };
   studio_ids: number[] | null;
   user: any;
   project: ProjectType;
   conversation: number | null;
+}
+
+export interface AliQueryParams {
+  text_generate: string;
+  studio_ids: number[];
+  conversation_id: number | null;
+  project_id: number;
 }

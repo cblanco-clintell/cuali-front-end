@@ -20,6 +20,30 @@ const aliApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    sendAliQuery: builder.mutation({
+      query: ({ textGenerate, studioIds, conversationId = null }) => ({
+        url: 'ali/conversations/generate_response/',
+        method: 'POST',
+        body: {
+          text_generate: textGenerate,
+          studio_ids: JSON.stringify(studioIds),
+          conversation_id: conversationId,
+        },
+      }),
+    }),
+    createAliQueryAnswer: builder.mutation({
+      query: ({ text_generate, studio_ids, conversation_id, project_id }) => ({
+        url: 'conversations/generate_response/',
+        method: 'POST',
+        body: {
+          text_generate,
+          studio_ids: JSON.stringify(studio_ids),
+          conversation_id,
+          project_id
+        },
+      }),
+    }),
   }),
 });
 
@@ -27,4 +51,5 @@ export const {
   useFetchProjectConversationsQuery,
   useFetchConversationResultsQuery,
   useUpdateConversationMutation,
+  useSendAliQueryMutation,
 } = aliApiSlice;
