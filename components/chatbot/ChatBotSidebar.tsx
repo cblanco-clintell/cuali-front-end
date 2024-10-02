@@ -30,7 +30,7 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
   if (error) return <p>Error loading conversations.</p>;
 
   return (
-    <aside className="px-4 py-6 shadow border-r border-zinc-300 flex flex-col items-start h-[87vh]">
+    <aside className="px-4 py-6 shadow border-r border-zinc-300 flex flex-col items-start h-[87vh] overflow-y-auto bg-gray-50">
       <div className="w-full flex flex-col gap-4">
         <h2 className="text-slate-600 text-sm font-semibold">Past Conversations</h2>
         {conversations.length === 0 && <p className="text-zinc-800 text-xs">No conversations found.</p>}

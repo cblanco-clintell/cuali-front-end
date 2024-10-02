@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify';
 export function formatMessage(message: string): string {
   if (!message) return '';
 
-  let formattedMessage = message.replace(/@@@/g, '\n');
+  let formattedMessage = message;
 
   // Apply formatting:
   // Bold text (**bold**)
@@ -16,8 +16,10 @@ export function formatMessage(message: string): string {
   // Format lists (- item.)
   formattedMessage = formattedMessage.replace(/(- .*?\.)/g, "<li>$1</li>");
 
-  // Wrap lists in <ul> tags if necessary
-  formattedMessage = "<ul>" + formattedMessage + "</ul>";
+  // If there are list items, wrap them in <ul>
+  if (formattedMessage.includes('<li>')) {
+    formattedMessage = `<ul>${formattedMessage}</ul>`;
+  }
 
   // Sanitize the HTML to prevent XSS attacks
   const sanitizedMessage = DOMPurify.sanitize(formattedMessage);

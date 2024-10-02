@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ChatBotInput from './ChatBotInput';
 import ChatBotResult from './ChatBotResult';
 import ChatBotSidebar from './ChatBotSidebar';
@@ -19,8 +19,9 @@ import { StudioType } from '@/types/studios';
 const ChatBot = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);
-  const [queryId, setQueryId] = useState<number | null>(null);  // Track the query ID for SSE
+  const [queryId, setQueryId] = useState<number | null>(null); // Track the query ID for SSE
   const selectedProject = useSelector(selectSelectedProject);
+  const scrollRef = useRef<HTMLDivElement>(null); // Ref to track the scrollable chat container
 
   const [sendAliQuery] = useSendAliQueryMutation();
   const [updateConversation] = useUpdateConversationMutation(); // Mutation to update the conversation
@@ -32,7 +33,13 @@ const ChatBot = () => {
       const lastResultIndex = prevResults.length - 1;
       if (lastResultIndex >= 0) {
         const updatedResults = [...prevResults];
-        updatedResults[lastResultIndex].response += newMessage;
+
+        // Check if the message is already part of the response to avoid duplication
+        const lastResponse = updatedResults[lastResultIndex].response;
+        if (!lastResponse.endsWith(newMessage)) {
+          updatedResults[lastResultIndex].response += newMessage;
+        }
+
         return updatedResults;
       }
       return prevResults;
@@ -47,31 +54,40 @@ const ChatBot = () => {
   // Use SSE for the current query ID
   useEffect(() => {
     if (queryId) {
-      const sseUrl = `http://localhost:9000/api/front/ali/conversations/query/${queryId}/`;  // SSE URL for the conversation
+      const sseUrl = `http://localhost:9000/api/front/ali/conversations/query/${queryId}/`; // SSE URL for the conversation
       const eventSource = new EventSource(sseUrl);
 
       // Listen for messages from the server
       eventSource.onmessage = (event) => {
         const message = event.data;
+        console.log('Received SSE chunk:', message); // Log each chunk
+
         if (message === '___close___') {
-          handleSSEComplete();  // Close event
-          eventSource.close();  // Close the connection when finished
+          handleSSEComplete(); // Close event
+          eventSource.close(); // Close the connection when finished
         } else {
-          handleSSEMessage(message);  // Handle the incoming message
+          handleSSEMessage(message); // Handle the incoming message
         }
       };
 
       // Handle connection error
       eventSource.onerror = (err) => {
         console.error('SSE error:', err);
-        eventSource.close();  // Close the connection on error
+        eventSource.close(); // Close the connection on error
       };
 
       return () => {
-        eventSource.close();  // Clean up the event source when the component unmounts
+        eventSource.close(); // Clean up the event source when the component unmounts
       };
     }
-  }, [queryId]);  // Only run when queryId changes
+  }, [queryId]); // Only run when queryId changes
+
+  // Scroll to the bottom whenever conversationResults is updated
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [conversationResults]);
 
   // Fetch conversations for the selected project
   const { data: conversations = [], error: convError, isLoading: convLoading, refetch } = useFetchProjectConversationsQuery(selectedProject?.id, {
@@ -112,7 +128,7 @@ const ChatBot = () => {
       // Add the new query with an empty response to the local state
       const newQuery: AliResultType = {
         ...result.data,
-        response: '',  // Start with an empty response, SSE will update this
+        response: '', // Start with an empty response, SSE will update this
       };
 
       // Add to the results list locally
@@ -131,7 +147,7 @@ const ChatBot = () => {
   // Fetch the studios for the selected conversation only when it changes
   useEffect(() => {
     if (selectedProject && results.length > 0 && results[0].studio_ids) {
-      const filteredStudios = selectedProject.studios.filter((studio) => 
+      const filteredStudios = selectedProject.studios.filter((studio) =>
         results[0].studio_ids.includes(studio.id)
       );
       setCurrentConversationStudios(filteredStudios);
@@ -165,8 +181,8 @@ const ChatBot = () => {
       <div className="max-w-[75vw] mx-auto relative bg-white">
         <div className="pt-10">
           {/* Chat content */}
-          <div className="overflow-auto mx-auto h-[72vh]">
-            <div className='px-[7vw]'>
+          <div ref={scrollRef} className="overflow-auto mx-auto h-[72vh]">
+            <div className="px-[7vw]">
               {currentConversationStudios.map((studio) => (
                 <span key={studio.id} className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
                   {studio.name}
@@ -182,7 +198,7 @@ const ChatBot = () => {
               ))}
             </div>
           </div>
-          <div className='px-[7vw] mt-3'>
+          <div className="px-[7vw] mt-3">
             <ChatBotInput handleSendAliQuery={handleSendAliQuery} />
           </div>
         </div>

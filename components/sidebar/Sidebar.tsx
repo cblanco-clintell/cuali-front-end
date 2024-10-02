@@ -17,7 +17,7 @@ const menuItemsBottom = [
 
 const Sidebar: React.FC = () => {
   return (
-    <div className=" border-r border-gray-200 h-screen flex flex-col justify-between" id="sidenav">
+    <div className=" border-r border-gray-200 h-screen flex flex-col justify-between bg-gray-50" id="sidenav">
       <div>
         <header className="flex flex-col pt-8">
           {/* <div className="flex flex-col justify-center items-start pr-5 pl-6">
