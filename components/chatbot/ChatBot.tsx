@@ -12,10 +12,12 @@ import {
 import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 import { toast } from 'react-toastify';
+import { AliConversationType, AliResultType } from '@/types/ali';
+import { StudioType } from '@/types/studios';
 
 const ChatBot = () => {
-  const [selectedConversation, setSelectedConversation] = useState(null); // Store selected conversation
-  const [currentConversationStudios, setCurrentConversationStudios] = useState([]); // State for filtered studios
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [currentConversationStudios, setCurrentConversationStudios] = useState<StudioType[]>([]);
   const selectedProject = useSelector(selectSelectedProject);
 
   // Fetch conversations for the selected project
@@ -36,22 +38,16 @@ const ChatBot = () => {
   };
 
   // Handle toggle saved status
-  const handleToggleSaved = async (conversation) => {
+  const handleToggleSaved = async (conversation: AliConversationType) => {
     try {
       const result = await updateConversation({
         conversationId: conversation.id,
         data: { saved: !conversation.saved },
       });
-
-      if (result.error) {
-        throw new Error(result.error.data?.message || 'Failed to update saved status');
-      }
-
       toast.success('Saved status updated successfully.');
       refetch(); // Re-query the conversations to get the updated saved status
     } catch (err) {
-      console.error('Failed to toggle saved status:', err.message);
-      toast.error(err.message || 'Failed to update saved status.');
+      toast.error('Failed to update saved status.');
     }
   };
 
@@ -73,10 +69,10 @@ const ChatBot = () => {
       <div className="w-80 border-r border-gray-300">
         <ChatBotSidebar
           conversations={conversations}
-          handleConversationClick={handleConversationClick}
+          handleConversationClick={(conversationId: number) => handleConversationClick(conversationId.toString())}
           isLoading={convLoading}
           error={convError}
-          selectedConversationId={selectedConversation}
+          selectedConversationId={selectedConversation ? parseInt(selectedConversation) : null}
           handleToggleSaved={handleToggleSaved}
         />
       </div>
@@ -97,7 +93,7 @@ const ChatBot = () => {
               {results.length === 0 && !resultsLoading && !resultsError && <p>No messages found for this conversation.</p>}
 
               {/* Render the conversation results */}
-              {results.map((result) => (
+              {results.map((result: AliResultType) => (
                 <ChatBotResult key={result.id} result={result} />
               ))}
             </div>
