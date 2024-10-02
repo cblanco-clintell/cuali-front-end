@@ -4,164 +4,114 @@ import React, { useState, useEffect, useRef } from 'react';
 import ChatBotInput from './ChatBotInput';
 import ChatBotResult from './ChatBotResult';
 import ChatBotSidebar from './ChatBotSidebar';
-import {
-  useFetchProjectConversationsQuery,
-  useFetchConversationResultsQuery,
-  useUpdateConversationMutation,
-  useSendAliQueryMutation,
-} from '@/redux/features/ali/aliApiSlice';
+import { useSendAliQueryMutation, useUpdateConversationMutation, useFetchProjectConversationsQuery, useFetchConversationResultsQuery } from '@/redux/features/ali/aliApiSlice';
 import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 import { toast } from 'react-toastify';
-import { AliConversationType, AliResultType } from '@/types/ali';
 import { StudioType } from '@/types/studios';
+import { AliResultType } from '@/types/ali';
 
 const ChatBot = () => {
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
-  const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);
-  const [queryId, setQueryId] = useState<number | null>(null); // Track the query ID for SSE
-  const selectedProject = useSelector(selectSelectedProject);
-  const scrollRef = useRef<HTMLDivElement>(null); // Ref to track the scrollable chat container
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null); // Track selected conversation
+  const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);  // Initial results from API
+  const [queryId, setQueryId] = useState<number | null>(null);  // Track query ID for SSE
+  const [sseResults, setSseResults] = useState<AliResultType[]>([]);  // Results updated by SSE
+
+  const selectedProject = useSelector(selectSelectedProject);  // Selected project from Redux store
+  const scrollRef = useRef<HTMLDivElement>(null);  // Ref for scrollable chat container
+  const [currentConversationStudios, setCurrentConversationStudios] = useState<StudioType[]>([]);  // Track the studios for the current conversation
+
+  const { data: conversations = [], error: convError, isLoading: convLoading, refetch } = useFetchProjectConversationsQuery(selectedProject?.id, { skip: !selectedProject });
+  const { data: initialResults = [], error: resultsError, isLoading: resultsLoading } = useFetchConversationResultsQuery(selectedConversation, { skip: !selectedConversation });
 
   const [sendAliQuery] = useSendAliQueryMutation();
-  const [updateConversation] = useUpdateConversationMutation(); // Mutation to update the conversation
-  const [currentConversationStudios, setCurrentConversationStudios] = useState<StudioType[]>([]);
+  const [updateConversation] = useUpdateConversationMutation();
 
-  // Function to handle the message from SSE
-  const handleSSEMessage = (newMessage: string) => {
-    setConversationResults((prevResults) => {
-      const lastResultIndex = prevResults.length - 1;
-      if (lastResultIndex >= 0) {
-        const updatedResults = [...prevResults];
+  // SSE (Server-Sent Events) logic: updates conversation results in real-time
+  useEffect(() => {
+    if (!selectedConversation || !currentConversationStudios) return;  // Guard clause
 
-        // Check if the message is already part of the response to avoid duplication
-        const lastResponse = updatedResults[lastResultIndex].response;
-        if (!lastResponse.endsWith(newMessage)) {
-          updatedResults[lastResultIndex].response += newMessage;
-        }
+    if (!queryId) return;  // Return early if no query ID
+    const sseUrl = `http://localhost:9000/api/front/ali/conversations/query/${queryId}/`;  // SSE URL
+    const eventSource = new EventSource(sseUrl);
 
-        return updatedResults;
+    eventSource.onmessage = (event) => {
+      const message = event.data;
+      if (message === '___close___') {
+        toast.success('Query completed.');
+        eventSource.close();
+      } else {
+        setSseResults((prevResults) => {
+          const lastResult = prevResults[prevResults.length - 1];
+          if (lastResult && !lastResult.response.endsWith(message)) {
+            const updatedResults = [...prevResults];
+            updatedResults[updatedResults.length - 1].response += message;
+            return updatedResults;
+          }
+          return prevResults;
+        });
       }
-      return prevResults;
-    });
-  };
+    };
 
-  // Function to handle query completion
-  const handleSSEComplete = () => {
-    toast.success('Query completed.');
-  };
+    eventSource.onerror = () => {
+      eventSource.close();  // Close SSE on error
+    };
 
-  // Use SSE for the current query ID
+    return () => {
+      eventSource.close();  // Clean up SSE connection
+    };
+  }, [queryId]);
+
+  // Scroll to the bottom when conversation results update
   useEffect(() => {
-    if (queryId) {
-      const sseUrl = `http://localhost:9000/api/front/ali/conversations/query/${queryId}/`; // SSE URL for the conversation
-      const eventSource = new EventSource(sseUrl);
+    if (!selectedConversation || !currentConversationStudios) return;  // Guard clause
 
-      // Listen for messages from the server
-      eventSource.onmessage = (event) => {
-        const message = event.data;
-        console.log('Received SSE chunk:', message); // Log each chunk
-
-        if (message === '___close___') {
-          handleSSEComplete(); // Close event
-          eventSource.close(); // Close the connection when finished
-        } else {
-          handleSSEMessage(message); // Handle the incoming message
-        }
-      };
-
-      // Handle connection error
-      eventSource.onerror = (err) => {
-        console.error('SSE error:', err);
-        eventSource.close(); // Close the connection on error
-      };
-
-      return () => {
-        eventSource.close(); // Clean up the event source when the component unmounts
-      };
-    }
-  }, [queryId]); // Only run when queryId changes
-
-  // Scroll to the bottom whenever conversationResults is updated
-  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [conversationResults]);
+  }, [conversationResults, sseResults]);
 
-  // Fetch conversations for the selected project
-  const { data: conversations = [], error: convError, isLoading: convLoading, refetch } = useFetchProjectConversationsQuery(selectedProject?.id, {
-    skip: !selectedProject,
-  });
-
-  // Fetch the results for the selected conversation
-  const { data: results = [], error: resultsError, isLoading: resultsLoading } = useFetchConversationResultsQuery(selectedConversation, {
-    skip: !selectedConversation,
-  });
-
-  // Handle conversation click in the sidebar
-  const handleConversationClick = (conversationId: string) => {
-    setSelectedConversation(conversationId); // Set the selected conversation
-  };
-
-  // Handle toggle saved status
-  const handleToggleSaved = async (conversation: AliConversationType) => {
-    try {
-      const result = await updateConversation({
-        conversationId: conversation.id,
-        data: { saved: !conversation.saved },
-      });
-      toast.success('Saved status updated successfully.');
-      refetch(); // Re-query the conversations to get the updated saved status
-    } catch (err) {
-      toast.error('Failed to update saved status.');
-    }
-  };
-
+  // Handle sending new query
   const handleSendAliQuery = async (textGenerate: string) => {
+    if (!selectedConversation || !currentConversationStudios) return;  // Guard clause
+
     const studioIds = currentConversationStudios.map((studio) => studio.id);
-    const conversationId = selectedConversation;
-
     try {
-      const result: AliResultType = await sendAliQuery({ textGenerate, studioIds, conversationId });
-
-      // Add the new query with an empty response to the local state
-      const newQuery: AliResultType = {
-        ...result.data,
-        response: '', // Start with an empty response, SSE will update this
-      };
-
-      // Add to the results list locally
-      setConversationResults((prevResults) => [...prevResults, newQuery]);
-
-      // Set the query ID for SSE to start listening for real-time updates
+      const result: AliResultType = await sendAliQuery({ textGenerate, studioIds, conversationId: selectedConversation });
+      const newQuery: AliResultType = { ...result.data, response: '' };
+      setSseResults((prevResults) => [...prevResults, newQuery]);
       setQueryId(result.data.id);
-
       toast.success('Query sent successfully.');
     } catch (err) {
       toast.error('Failed to send query.');
-      console.log(err);
     }
   };
 
-  // Fetch the studios for the selected conversation only when it changes
+  // Only fetch conversation studios when a conversation is selected
   useEffect(() => {
-    if (selectedProject && results.length > 0 && results[0].studio_ids) {
-      const filteredStudios = selectedProject.studios.filter((studio) =>
-        results[0].studio_ids.includes(studio.id)
-      );
-      setCurrentConversationStudios(filteredStudios);
-    } else {
-      setCurrentConversationStudios([]);
-    }
-  }, [selectedProject, results]);
+    if (!selectedConversation || !selectedProject || initialResults.length === 0) return;  // Guard clause
 
-  // Update local state when results are fetched from the server
+    const studioIds = initialResults[0]?.studio_ids ?? [];
+    const filteredStudios = selectedProject.studios.filter((studio) => studioIds.includes(studio.id));
+    setCurrentConversationStudios(filteredStudios);
+  }, [selectedConversation, selectedProject, initialResults]);
+
+  // Update local state when initialResults are fetched
   useEffect(() => {
-    if (results) {
-      setConversationResults(results); // Initialize results from API call
-    }
-  }, [results]);
+    if (!selectedConversation || !currentConversationStudios) return;  // Guard clause
+
+    if (!initialResults) return;  // Guard clause
+    setConversationResults(initialResults);
+  }, [initialResults]);
+
+  // Handle conversation click in the sidebar
+  const handleConversationClick = (conversationId: string) => {
+    setSelectedConversation(conversationId);
+    setSseResults([]);  // Clear SSE results when switching conversations
+  };
+
+  // Combine the initial and real-time conversation results
+  const concatenatedResults = [...conversationResults, ...sseResults];
 
   return (
     <div className="flex w-full bg-white">
@@ -169,11 +119,9 @@ const ChatBot = () => {
       <div className="w-80 border-r border-gray-300">
         <ChatBotSidebar
           conversations={conversations}
-          handleConversationClick={(conversationId: number) => handleConversationClick(conversationId.toString())}
+          handleConversationClick={handleConversationClick}
           isLoading={convLoading}
           error={convError}
-          selectedConversationId={selectedConversation ? parseInt(selectedConversation) : null}
-          handleToggleSaved={handleToggleSaved}
         />
       </div>
 
@@ -190,10 +138,8 @@ const ChatBot = () => {
               ))}
               {resultsLoading && <p>Loading...</p>}
               {resultsError && <p>Error loading conversation results.</p>}
-              {conversationResults.length === 0 && !resultsLoading && !resultsError && <p>No messages found for this conversation.</p>}
-
-              {/* Render the conversation results */}
-              {conversationResults.map((result: AliResultType) => (
+              {concatenatedResults.length === 0 && !resultsLoading && !resultsError && <p>No messages found for this conversation.</p>}
+              {concatenatedResults.map((result: AliResultType) => (
                 <ChatBotResult key={result.id} result={result} />
               ))}
             </div>
