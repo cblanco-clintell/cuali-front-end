@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
 interface GeneralEmotionsProps {
   positive?: number;
@@ -36,33 +36,35 @@ export default class GeneralEmotionsBarChart extends PureComponent<GeneralEmotio
     ];
 
     return (
-      <ResponsiveContainer width="100%" height={100}>
+      <ResponsiveContainer width="100%" height={50}>
         <BarChart
           layout="vertical"
           width={500}
-          height={100}
+          height={60}
           data={data}
           margin={{
-            top: 20,
+            top: 0,
             right: 30,
             left: 20,
-            bottom: 5,
+            bottom: 0,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" hide domain={[0, 100]} /> {/* Hide the axis and ensure it sums to 100% */}
-          <YAxis type="category" dataKey="name" hide /> {/* We only have one category, so hide it */}
+          {/* Hide the axis and ensure it sums to 100% */}
+          <XAxis type="number" hide domain={[0, 100]} />
+          {/* We only have one category, so hide it */}
+          <YAxis type="category" dataKey="name" hide />
           <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
-          {/* Positive bar */}
-          <Bar dataKey="positive" stackId="a" fill="#82ca9d">
+          
+          {/* Positive bar with rounded corners */}
+          <Bar dataKey="positive" stackId="a" fill="#82ca9d" radius={[20, 0, 0, 20]}>
             <LabelList dataKey="positive" position="center" fill="white" formatter={(value) => `${value.toFixed(0)}%`} />
           </Bar>
           {/* Neutral bar */}
           <Bar dataKey="neutral" stackId="a" fill="#fdd835">
             <LabelList dataKey="neutral" position="center" fill="white" formatter={(value) => `${value.toFixed(0)}%`} />
           </Bar>
-          {/* Negative bar */}
-          <Bar dataKey="negative" stackId="a" fill="#f44336">
+          {/* Negative bar with rounded corners */}
+          <Bar dataKey="negative" stackId="a" fill="#f44336" radius={[0, 20, 20, 0]}>
             <LabelList dataKey="negative" position="center" fill="white" formatter={(value) => `${value.toFixed(0)}%`} />
           </Bar>
         </BarChart>

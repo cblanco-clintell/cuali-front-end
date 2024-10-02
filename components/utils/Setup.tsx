@@ -36,7 +36,7 @@ export default function Setup() {
         }
     }, [projects, projectsIsLoading, projectsIsFetching, dispatch]);
 
-    return         <ToastContainer
+    return <ToastContainer
     position="bottom-center"
     autoClose={5000}
     hideProgressBar={false}

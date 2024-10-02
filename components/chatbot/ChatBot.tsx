@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatBotInput from './ChatBotInput';
 import ChatBotResult from './ChatBotResult';
 import ChatBotSidebar from './ChatBotSidebar';
 import {
   useFetchProjectConversationsQuery,
   useFetchConversationResultsQuery,
-  useUpdateConversationMutation, // Import mutation
+  useUpdateConversationMutation,
 } from '@/redux/features/ali/aliApiSlice';
 import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
@@ -15,16 +15,17 @@ import { toast } from 'react-toastify';
 
 const ChatBot = () => {
   const [selectedConversation, setSelectedConversation] = useState(null); // Store selected conversation
-  const selectedProject = useSelector(selectSelectedProject); // Fetch the selected project from Redux
+  const [currentConversationStudios, setCurrentConversationStudios] = useState([]); // State for filtered studios
+  const selectedProject = useSelector(selectSelectedProject);
 
   // Fetch conversations for the selected project
   const { data: conversations = [], error: convError, isLoading: convLoading, refetch } = useFetchProjectConversationsQuery(selectedProject?.id, {
-    skip: !selectedProject, // Skip the query if no project is selected
+    skip: !selectedProject,
   });
 
   // Fetch the results for the selected conversation
   const { data: results = [], error: resultsError, isLoading: resultsLoading } = useFetchConversationResultsQuery(selectedConversation, {
-    skip: !selectedConversation, // Skip the query if no conversation is selected
+    skip: !selectedConversation,
   });
 
   const [updateConversation] = useUpdateConversationMutation(); // Mutation to update the conversation
@@ -39,17 +40,14 @@ const ChatBot = () => {
     try {
       const result = await updateConversation({
         conversationId: conversation.id,
-        data: { saved: !conversation.saved }, // Toggle the saved field
+        data: { saved: !conversation.saved },
       });
 
-      // Check if the result has an error property
       if (result.error) {
         throw new Error(result.error.data?.message || 'Failed to update saved status');
       }
 
       toast.success('Saved status updated successfully.');
-
-      // Refetch conversations after update
       refetch(); // Re-query the conversations to get the updated saved status
     } catch (err) {
       console.error('Failed to toggle saved status:', err.message);
@@ -57,8 +55,20 @@ const ChatBot = () => {
     }
   };
 
+  // Fetch the studios for the selected conversation only when it changes
+  useEffect(() => {
+    if (selectedProject && results.length > 0 && results[0].studio_ids) {
+      const filteredStudios = selectedProject.studios.filter((studio) => 
+        results[0].studio_ids.includes(studio.id)
+      );
+      setCurrentConversationStudios(filteredStudios);
+    } else {
+      setCurrentConversationStudios([]);
+    }
+  }, [selectedProject, results]);
+
   return (
-    <div className="flex w-full">
+    <div className="flex w-full bg-white">
       {/* Sidebar for displaying conversations */}
       <div className="w-80 border-r border-gray-300">
         <ChatBotSidebar
@@ -72,11 +82,16 @@ const ChatBot = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="max-w-[75vw] mx-auto relative">
+      <div className="max-w-[75vw] mx-auto relative bg-white">
         <div className="pt-10">
           {/* Chat content */}
           <div className="overflow-auto mx-auto h-[72vh]">
             <div className='px-[7vw]'>
+              {currentConversationStudios.map((studio) => (
+                <span key={studio.id} className="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+                  {studio.name}
+                </span>
+              ))}
               {resultsLoading && <p>Loading...</p>}
               {resultsError && <p>Error loading conversation results.</p>}
               {results.length === 0 && !resultsLoading && !resultsError && <p>No messages found for this conversation.</p>}

@@ -9,7 +9,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 }) => {
   return (
     <div className="max-w-screen-xl mx-auto mt-5">
-      <div className='max-w-[500px]'>
+      <div className=''>
         <ObjectiveSelector/>
       </div>
       <div className="mt-4">

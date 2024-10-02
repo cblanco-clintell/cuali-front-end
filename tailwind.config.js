@@ -15,6 +15,9 @@ module.exports = {
 				default: '#6C6C6C',
 				"purple": '#9493FF',
 				"purple-light": '#E6E5FB',
+				"positive": '#82ca9d',
+				"neutral": '#fdd835',
+				"negative": '#f44336',
 			},
 			keyframes: {
 				fadeIn: {

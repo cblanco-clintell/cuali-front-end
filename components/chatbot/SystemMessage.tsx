@@ -17,7 +17,7 @@ const SystemMessage: React.FC<SystemMessageProps> = ({ time, message }) => {
         </div>
         {time}
       </div>
-      <div className="bg-white border border-neutral-100 rounded-lg p-5 text-zinc-800 text-sm mt-1">
+      <div className="bg-white border-neutral-100 rounded-lg p-5 text-zinc-800 text-sm mt-1">
         {/* Render formatted and sanitized HTML */}
         <div dangerouslySetInnerHTML={{ __html: formattedMessage }} />
       </div>
