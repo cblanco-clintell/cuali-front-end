@@ -15,11 +15,7 @@ import Image from 'next/image';
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const { projectId } = useParams();
-  const [showChatBot, setShowChatBot] = useState(false);
   const selectedProject = useSelector(selectSelectedProject);
-
-  const pathname = usePathname();
-  const isAli = pathname.includes('ali');
 
   useEffect(() => {
     if (projectId && typeof projectId === 'string') {
@@ -32,52 +28,20 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
     return <div>Loading project data...</div>;
   }
 
-  const toggleChatBot = () => {
-    setShowChatBot((prevState) => !prevState);
-  };
 
   const breadcrumbs = [
     { icon: FiChevronLeft, title: 'Studies', href: '/projects' },
     { icon: FiFolder, title: selectedProject.name, href: `/projects/${projectId}` },
   ];
-  
-  // Skip applying this layout to Ali pages
-  if (isAli) return children;
 
   return (
     <SidebarLayout>
       <div className="projects h-screen flex flex-col">
-        {/* Header and Navbar */}
         <div className="sticky top-0 z-10 bg-white">
           <Header breadcrumbs={breadcrumbs} />
           <ProjectDetailNavbar />
         </div>
-
-        {/* Main Content Area */}
-        <div
-          className={`flex-1 grid ${showChatBot ? 'grid-cols-2' : 'grid-cols-1'} h-full`}
-          style={{ minHeight: 0 }} // Ensure the grid doesn't exceed the viewport height
-        >
-          {/* Content Area */}
-          <div className="overflow-y-auto">
-            <div className="">{children}</div>
-          </div>
-
-          {/* ChatBot */}
-          {!isAli && showChatBot && (
-            <div className="h-full border mx-4 rounded-lg">
-              <ChatBot showPastConversations={false} />
-            </div>
-          )}
-        </div>
-
-        {/* ChatBot Toggle Button */}
-        <button
-          onClick={toggleChatBot}
-          className="bg-white p-4 rounded fixed bottom-40 right-10 z-20 rounded-lg shadow"
-        >
-          <Image src="/ali.svg" alt="ChatBot" width={20} height={20} />
-        </button>
+        <div className="">{children}</div>
       </div>
     </SidebarLayout>
   );

@@ -9,9 +9,13 @@ import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 import { toast } from 'react-toastify';
 import { StudioType } from '@/types/studios';
-import { AliResultType } from '@/types/ali';
+import { AliResultType, AliConversationType } from '@/types/ali';
+interface ChatBotProps {
+  showPastConversations?: boolean;
+}
 
-const ChatBot = () => {
+const ChatBot: React.FC<ChatBotProps> = ({ showPastConversations = true }) => {
+
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null); // Track selected conversation
   const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);  // Initial results from API
   const [queryId, setQueryId] = useState<number | null>(null);  // Track query ID for SSE
@@ -87,6 +91,20 @@ const ChatBot = () => {
     }
   };
 
+  // Handle toggle saved status
+  const handleToggleSaved = async (conversation: AliConversationType) => {
+    try {
+      const result = await updateConversation({
+        conversationId: conversation.id,
+        data: { saved: !conversation.saved },
+      });
+      toast.success('Saved status updated successfully.');
+      refetch(); // Re-query the conversations to get the updated saved status
+    } catch (err) {
+      toast.error('Failed to update saved status.');
+    }
+  };
+
   // Only fetch conversation studios when a conversation is selected
   useEffect(() => {
     if (!selectedConversation || !selectedProject || initialResults.length === 0) return;  // Guard clause
@@ -114,16 +132,20 @@ const ChatBot = () => {
   const concatenatedResults = [...conversationResults, ...sseResults];
 
   return (
-    <div className="flex w-full bg-white">
+    <div className="flex w-full bg-white rounded-lg">
       {/* Sidebar for displaying conversations */}
+      {showPastConversations && (
       <div className="w-80 border-r border-gray-300">
         <ChatBotSidebar
           conversations={conversations}
           handleConversationClick={handleConversationClick}
           isLoading={convLoading}
           error={convError}
+          selectedConversation={selectedConversation}
+          handleToggleSaved={handleToggleSaved}
         />
       </div>
+      )}
 
       {/* Main Chat Area */}
       <div className="max-w-[75vw] mx-auto relative bg-white">

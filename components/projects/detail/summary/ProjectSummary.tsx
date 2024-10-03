@@ -8,7 +8,7 @@ interface ProjectSummaryProps {}
 const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 }) => {
   return (
-    <div className="max-w-screen-xl mx-auto mt-5">
+    <div className="max-w-screen-xl mx-auto mt-0">
       <div className=''>
         <ObjectiveSelector/>
       </div>

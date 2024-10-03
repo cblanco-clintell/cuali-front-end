@@ -41,7 +41,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ src }) => (
 
 const Header: React.FC<HeaderProps> = ({ breadcrumbs = [{ icon: null, title: 'None' }] }) => {
   return (
-    <header className="flex justify-between items-center px-8 py-2 border-b">
+    <header className="flex justify-between items-center px-8 py-2 border-b bg-gray-50">
       {/* Left side: Breadcrumbs */}
       <div className="flex gap-4 items-center">
         {breadcrumbs.length > 0 ? (

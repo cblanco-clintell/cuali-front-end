@@ -6,14 +6,13 @@ import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 
 interface ProjectDetailNavbarProps {
-  projectId: string;
 }
 
 const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
   const selectedProject = useSelector(selectSelectedProject);
   const projectId = selectedProject?.id;
 
-  const pathname = usePathname(); // Get the current path
+  const pathname = usePathname();
 
   // Navigation items on the left side
   const navigation = [
@@ -39,7 +38,7 @@ const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
   ];
 
   return (
-    <Disclosure as="nav" className="border-b">
+    <Disclosure as="nav" className="border-b bg-gray-50">
       <div className="my-1">
         <div className="relative flex items-center justify-between">
           {/* Left-side navigation */}

@@ -35,7 +35,7 @@ const WordCloud: React.FC<WordCloudProps> = ({ height, words }) => {
   // Set font scale based on the provided words' values
   const fontScale = scaleLog({
     domain: [Math.min(...words.map((w) => w.value)), Math.max(...words.map((w) => w.value))],
-    range: [5, 80],
+    range: [5, 50],
   });
 
   useEffect(() => {
@@ -55,10 +55,10 @@ const WordCloud: React.FC<WordCloudProps> = ({ height, words }) => {
           width={containerWidth}
           height={height}
           fontSize={(word) => fontSizeSetter(word, fontScale)}
-          font={'Impact'}
+          font={'__DM_Sans_0dfae3'}
           padding={2}
           spiral={spiralType}
-          rotate={0} // No rotation
+          rotate={0}
           random={fixedValueGenerator}
         >
           {(cloudWords) =>
@@ -83,6 +83,7 @@ const WordCloud: React.FC<WordCloudProps> = ({ height, words }) => {
           flex-direction: column;
           user-select: none;
           width: 100%;
+          font-weight: 500;
         }
         .wordcloud svg {
           margin: 1rem 0;

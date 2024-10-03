@@ -1,10 +1,10 @@
 import '@/styles/globals.css';
-import { Inter } from 'next/font/google';
+import { Inter, DM_Sans } from 'next/font/google';
 import type { Metadata } from 'next';
 import Provider from '@/redux/provider';
 import { Setup } from '@/components/utils';
 
-const inter = Inter({ subsets: ['latin'] });
+const font = DM_Sans({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Cuali',
@@ -36,7 +36,7 @@ export default function RootLayout({
           }}
         /> */}
       </head>
-      <body className={`h-screen ${inter.className}`}>
+      <body className={`h-screen ${font.className}`}>
         <Provider>
           <Setup />
           <div className="flex h-full">
