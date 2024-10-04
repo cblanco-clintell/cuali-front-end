@@ -8,30 +8,40 @@ import ChatBotInput from './ChatBotInput';
 import { useSendAliQueryMutation } from '@/redux/features/ali/aliApiSlice';
 import { AliResultType } from '@/types/ali';
 import { toast } from 'react-toastify';
+import Image from 'next/image';
+import StudiosDropdown from './StudiosDropdown'; // Import the StudiosDropdown component
 
 interface ChatBotEmptyStateProps {
   project: ProjectType;
-  onConversationStart: (conversationId: number, queryId: number, newAliResult: AliResultType) => void;
+  onConversationStart: (
+    conversationId: number,
+    queryId: number,
+    newAliResult: AliResultType
+  ) => void;
 }
 
-const ChatBotEmptyState: React.FC<ChatBotEmptyStateProps> = ({ project, onConversationStart }) => {
-  const [selectedStudios, setSelectedStudios] = useState<StudioType[]>([]);
+const ChatBotEmptyState: React.FC<ChatBotEmptyStateProps> = ({
+  project,
+  onConversationStart,
+}) => {
+  // Select all studios by default
+  const [selectedStudios, setSelectedStudios] = useState<number[]>(
+    project?.studios.map((s) => s.id) || []
+  );
   const [sendAliQuery] = useSendAliQueryMutation();
 
-  const handleStudioSelect = (studio: StudioType) => {
-    setSelectedStudios((prev) =>
-      prev.some((s) => s.id === studio.id) ? prev.filter((s) => s.id !== studio.id) : [...prev, studio]
-    );
+  const handleStudioSelect = (studioIds: number[]) => {
+    setSelectedStudios(studioIds);
   };
 
   const handleStartConversation = async (initialMessage: string) => {
     if (selectedStudios.length === 0) {
-      toast.error('Please select at least one studio.');
+      toast.error('Please select at least one group.');
       return;
     }
 
     try {
-      const studioIds = selectedStudios.map((s) => s.id);
+      const studioIds = selectedStudios;
 
       const result: AliResultType = await sendAliQuery({
         textGenerate: initialMessage,
@@ -53,24 +63,31 @@ const ChatBotEmptyState: React.FC<ChatBotEmptyStateProps> = ({ project, onConver
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4">
-      <h2 className="text-xl font-semibold mb-4">Start a New Conversation</h2>
-      <div className="mb-4 flex flex-wrap justify-center">
-        {project?.studios.map((studio) => (
-          <button
-            key={studio.id}
-            className={`px-3 py-1 border rounded-full mr-2 mb-2 ${
-              selectedStudios.some((s) => s.id === studio.id)
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200'
-            }`}
-            onClick={() => handleStudioSelect(studio)}
-          >
-            {studio.name}
-          </button>
-        ))}
+    <div className="mt-[20vh] text-center h-full px-4 max-w-[900px] mx-auto">
+      {/* Ali Image */}
+      <Image src="/ali.svg" alt="Ali" width={80} height={80} className='mx-auto'/>
+      <p className="mt-5 text-center">
+        Hi, I'm Ali! To start a conversation, please select your study groups and ask a question.
+      </p>
+
+      {/* Studios Dropdown */}
+      <div className="mb-4 mt-5 w-full mx-auto mt-[5vh]">
+        {/* Group Header */}
+        <h3 className="mb-4 font-semibold text-gray-900">Select your groups</h3>
+        <StudiosDropdown
+          studios={project?.studios || []}
+          selectedStudios={selectedStudios}
+          onStudioSelect={handleStudioSelect}
+        />
       </div>
-      <ChatBotInput onSendMessage={handleStartConversation} />
+
+      {/* Chat Input */}
+      <h3 className="mb-4 font-semibold text-gray-900">Ask a question</h3>
+
+      <ChatBotInput
+        onSendMessage={handleStartConversation}
+        disabled={selectedStudios.length === 0}
+      />
     </div>
   );
 };

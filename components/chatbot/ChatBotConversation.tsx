@@ -1,8 +1,13 @@
+// ChatBotConversation.tsx
+
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import ChatBotInput from './ChatBotInput';
 import ChatBotResult from './ChatBotResult';
-import { useSendAliQueryMutation, useFetchConversationResultsQuery } from '@/redux/features/ali/aliApiSlice';
+import {
+  useSendAliQueryMutation,
+  useFetchConversationResultsQuery,
+} from '@/redux/features/ali/aliApiSlice';
 import { AliResultType } from '@/types/ali';
 import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
@@ -13,13 +18,18 @@ interface ChatBotConversationProps {
   initialQueryId: number | null;
 }
 
-const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationId, initialQueryId }) => {
+const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
+  conversationId,
+  initialQueryId,
+}) => {
   const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);
   const [queryId, setQueryId] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedProject = useSelector(selectSelectedProject);
 
-  const { data: initialResults = [], error, isLoading } = useFetchConversationResultsQuery(conversationId);
+  const { data: initialResults = [], error, isLoading } =
+    useFetchConversationResultsQuery(conversationId);
   const [sendAliQuery] = useSendAliQueryMutation();
 
   const eventSourcesRef = useRef<{ [key: number]: EventSource }>({});
@@ -31,22 +41,21 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationI
   }, [initialResults]);
 
   useEffect(() => {
-    console.log('initialQueryId changed:', initialQueryId);
     if (initialQueryId) {
       setQueryId(initialQueryId);
     }
   }, [initialQueryId]);
 
   useEffect(() => {
-    console.log('queryId changed:', queryId);
     if (queryId) {
       setupEventSource(queryId);
     }
 
     return () => {
-      if (eventSourcesRef.current[queryId]) {
+      if (queryId && eventSourcesRef.current[queryId]) {
         eventSourcesRef.current[queryId].close();
         delete eventSourcesRef.current[queryId];
+        setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
       }
     };
   }, [queryId]);
@@ -60,13 +69,19 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationI
   const setupEventSource = (queryId: number) => {
     if (eventSourcesRef.current[queryId]) return;
 
-    const eventSource = new EventSource(`http://localhost:9000/api/front/ali/conversations/query/${queryId}/`);
+    const eventSource = new EventSource(
+      `http://localhost:9000/api/front/ali/conversations/query/${queryId}/`
+    );
+
+    eventSourcesRef.current[queryId] = eventSource;
+    setIsGenerating(true); // Start generating
 
     eventSource.onmessage = (event) => {
       const message = event.data;
       if (message === '___close___') {
         eventSource.close();
         delete eventSourcesRef.current[queryId];
+        setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
         toast.success('Query completed.');
       } else {
         setConversationResults((prevResults) => {
@@ -80,11 +95,12 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationI
             newResults[resultIndex] = updatedResult;
             return newResults;
           } else {
+            // If the result isn't found, add it
             const newResult: AliResultType = {
               id: queryId,
               query: '', // Set appropriately
               response: message,
-              // ... other fields
+              // ... other fields as needed
             };
             return [...prevResults, newResult];
           }
@@ -95,10 +111,9 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationI
     eventSource.onerror = () => {
       eventSource.close();
       delete eventSourcesRef.current[queryId];
+      setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
       toast.error('Connection lost. Please try again.');
     };
-
-    eventSourcesRef.current[queryId] = eventSource;
   };
 
   const handleSendMessage = async (message: string) => {
@@ -119,18 +134,33 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationI
     }
   };
 
+  const handleStopGenerating = () => {
+    // Close all active EventSources
+    Object.values(eventSourcesRef.current).forEach((eventSource) => {
+      eventSource.close();
+    });
+    eventSourcesRef.current = {};
+    setIsGenerating(false);
+    toast.info('Generation stopped.');
+  };
+
   return (
-    <div className="flex flex-col h-full max-w-[75vw] mx-auto relative bg-white max-h-[87vh]">
+    <div className="flex flex-col h-full max-w-[900px] mx-auto relative bg-white max-h-[87vh]">
       <div ref={scrollRef} className="flex-1 overflow-auto p-4 ">
+        {/* Display studios associated with this conversation */}
         <div className="mb-2">
           {selectedProject?.studios
             .filter((studio) => conversationResults[0]?.studio_ids?.includes(studio.id))
             .map((studio) => (
-              <span key={studio.id} className="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+              <span
+                key={studio.id}
+                className="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
+              >
                 {studio.name}
               </span>
             ))}
         </div>
+        {/* Display messages */}
         {isLoading && <p>Loading...</p>}
         {error && <p>Error loading conversation.</p>}
         {conversationResults.map((result) => (
@@ -138,7 +168,11 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({ conversationI
         ))}
       </div>
       <div className="p-4">
-        <ChatBotInput onSendMessage={handleSendMessage} />
+        <ChatBotInput
+          onSendMessage={handleSendMessage}
+          isGenerating={isGenerating}
+          onStopGenerating={handleStopGenerating}
+        />
       </div>
     </div>
   );

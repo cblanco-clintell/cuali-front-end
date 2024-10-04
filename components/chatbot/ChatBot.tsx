@@ -13,15 +13,18 @@ import { AliResultType } from '@/types/ali';
 const ChatBot: React.FC = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
   const [initialQueryId, setInitialQueryId] = useState<number | null>(null);
-  const [initialResult, setInitialResult] = useState<AliResultType | null>(null);
   const selectedProject = useSelector(selectSelectedProject);
   const { data: conversations = [], error: convError, isLoading: convLoading, refetch } = useFetchProjectConversationsQuery(selectedProject?.id, { skip: !selectedProject });
 
   // Handle conversation selection
-  const handleConversationSelect = (conversationId: number, queryId?: number, initialResult?: AliResultType) => {
+  const handleConversationSelect = (conversationId: number, queryId?: number) => {
     setSelectedConversationId(conversationId);
     setInitialQueryId(queryId || null);
-    setInitialResult(initialResult || null);
+  };
+
+  const handleNewConversation = () => {
+    setSelectedConversationId(null);
+    setInitialQueryId(null);
   };
 
   const handleToggleSaved = () => {
@@ -38,6 +41,7 @@ const ChatBot: React.FC = () => {
         isLoading={convLoading}
         error={convError}
         handleToggleSaved={handleToggleSaved}
+        handleNewConversation={handleNewConversation}
       />
 
       {/* Main Content */}
@@ -46,7 +50,6 @@ const ChatBot: React.FC = () => {
           <ChatBotConversation
             conversationId={selectedConversationId}
             initialQueryId={initialQueryId}
-            initialResult={initialResult}
           />
         ) : (
           <ChatBotEmptyState

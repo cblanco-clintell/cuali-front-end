@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { FiBookmark } from "react-icons/fi";
+import { FiBookmark, FiPlus } from "react-icons/fi";
 
 interface ChatBotSidebarProps {
   conversations: any[];
@@ -8,7 +8,8 @@ interface ChatBotSidebarProps {
   isLoading: boolean;
   error: any;
   selectedConversationId: number | null;
-  handleToggleSaved: (conversation: any) => void; // Added prop to handle save toggle
+  handleToggleSaved: (conversation: any) => void;
+  handleNewConversation: () => void; // Added prop for new conversation
 }
 
 const truncateText = (text: string, maxLength: number) => {
@@ -24,7 +25,8 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
   isLoading,
   error,
   selectedConversationId,
-  handleToggleSaved, // Get the function as a prop
+  handleToggleSaved,
+  handleNewConversation, // Get the function as a prop
 }) => {
   if (isLoading) return <p>Loading conversations...</p>;
   if (error) return <p>Error loading conversations.</p>;
@@ -32,6 +34,16 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
   return (
     <aside className="px-4 py-6 shadow border-r border-zinc-300 flex flex-col items-start h-[87vh] overflow-y-auto bg-gray-50">
       <div className="w-full flex flex-col gap-4">
+        <div>
+        <button
+          className="flex items-center justify-center px-3.5 py-2 mb-4 text-sm hover:bg-gray-100
+                    rounded-lg shadow border border-gray-300"
+          onClick={handleNewConversation}
+        >
+          <FiPlus className="mr-2" /> New Conversation
+        </button>
+        </div>
+
         <h2 className="text-slate-600 text-sm font-semibold">Past Conversations</h2>
         {conversations?.length === 0 && <p className="text-zinc-800 text-xs">No conversations found.</p>}
         <div>
@@ -44,7 +56,7 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
               onClick={() => handleConversationClick(conversation.id)}
             >
               <span className="text-zinc-800 text-xs">
-                {truncateText(conversation.title, 37)}
+                {truncateText(conversation.title || 'Untitled Conversation', 37)}
               </span>
 
               {/* Bookmark icon with toggle saved functionality */}
