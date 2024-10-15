@@ -2,21 +2,21 @@
 
 "use client";
 import React, { useState } from 'react';
-import { StudioType } from '@/types/studios';
-import { ProjectType } from '@/types/projects';
+import { StudioModel } from '@/types/studios';
+import { ProjectModel } from '@/types/projects';
 import ChatBotInput from './ChatBotInput';
 import { useSendAliQueryMutation } from '@/redux/features/ali/aliApiSlice';
-import { AliResultType } from '@/types/ali';
+import { AliResultModel } from '@/types/ali';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import StudiosDropdown from './StudiosDropdown'; // Import the StudiosDropdown component
 
 interface ChatBotEmptyStateProps {
-  project: ProjectType;
+  project: ProjectModel;
   onConversationStart: (
     conversationId: number,
     queryId: number,
-    newAliResult: AliResultType
+    newAliResult: AliResultModel
   ) => void;
 }
 
@@ -43,7 +43,7 @@ const ChatBotEmptyState: React.FC<ChatBotEmptyStateProps> = ({
     try {
       const studioIds = selectedStudios;
 
-      const result: AliResultType = await sendAliQuery({
+      const result: AliResultModel = await sendAliQuery({
         textGenerate: initialMessage,
         studioIds,
         conversationId: null,

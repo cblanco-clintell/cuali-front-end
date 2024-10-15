@@ -11,25 +11,63 @@ import { selectSelectedProject } from '@/redux/features/projects/projectSelector
 import { FiChevronLeft, FiFolder } from 'react-icons/fi';
 import ChatBot from '@/components/chatbot/ChatBot';
 import Image from 'next/image';
+import {
+  useGetProjectQuery,
+  useLazyGetProjectKeywordsQuery,
+  useLazyGetProjectQuestionsQuery,
+  useLazyGetProjectCategoriesQuery,
+  useLazyGetProjectSegmentsQuery,
+  useLazyGetProjectStudiosQuery,
+} from '@/redux/features/projects/projectApiSlice';
 
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const { projectId } = useParams();
   const [showChatBot, setShowChatBot] = useState(false);
   const selectedProject = useSelector(selectSelectedProject);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const pathname = usePathname();
   const isAli = pathname.includes('ali');
 
+  const { data: project, isLoading, isError } = useGetProjectQuery(projectId as string, {
+    skip: !projectId || typeof projectId !== 'string',
+  });
+
+  // Lazy query hooks for fetching additional project details
+  const [fetchKeywords] = useLazyGetProjectKeywordsQuery();
+  const [fetchQuestions] = useLazyGetProjectQuestionsQuery();
+  const [fetchCategories] = useLazyGetProjectCategoriesQuery();
+  const [fetchSegments] = useLazyGetProjectSegmentsQuery();
+  const [fetchStudios] = useLazyGetProjectStudiosQuery();
   useEffect(() => {
     if (projectId && typeof projectId === 'string') {
       dispatch(setSelectedProject(parseInt(projectId)));
     }
   }, [dispatch, projectId]);
 
-  // Handle loading states
-  if (!selectedProject) {
+  useEffect(() => {
+    if (project) {
+      Promise.all([
+        fetchQuestions(project.id),
+        fetchKeywords(project.id),
+        fetchCategories(project.id),
+        fetchSegments(project.id),
+        fetchStudios(project.id)
+      ]).then(() => setIsDataLoaded(true));
+    }
+  }, [project, fetchKeywords, fetchQuestions, fetchCategories, fetchSegments, fetchStudios]);
+
+  if (isLoading || !isDataLoaded) {
     return <div>Loading project data...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading project data. Please try again.</div>;
+  }
+
+  if (!selectedProject) {
+    return <div>No project data available.</div>;
   }
 
   const toggleChatBot = () => {
@@ -40,7 +78,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
     { icon: FiChevronLeft, title: 'Studies', href: '/projects' },
     { icon: FiFolder, title: selectedProject.name, href: `/projects/${projectId}` },
   ];
-  
+
   // Skip applying this layout to Ali pages
   if (isAli) return children;
 
@@ -54,19 +92,16 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
         </div>
 
         {/* Main Content Area */}
-        <div
-          className={`flex-1 grid ${showChatBot ? 'grid-cols-2' : 'grid-cols-1'} h-full`}
-          style={{ minHeight: 0 }} // Ensure the grid doesn't exceed the viewport height
-        >
+        <div className={`flex-1 grid ${showChatBot ? 'grid-cols-2' : 'grid-cols-1'} h-full`}>
           {/* Content Area */}
           <div className="overflow-y-auto">
-            <div className="">{children}</div>
+            <div>{children}</div>
           </div>
 
           {/* ChatBot */}
           {!isAli && showChatBot && (
             <div className="h-full border mx-4 rounded-lg">
-              <ChatBot showPastConversations={false} />
+              <ChatBot />
             </div>
           )}
         </div>

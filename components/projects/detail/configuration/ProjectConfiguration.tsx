@@ -1,9 +1,11 @@
 import React from 'react';
 import { useAppSelector } from '@/redux/hooks';
-import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
+import { selectSelectedProject, getStudios, getQuestions } from '@/redux/features/projects/projectSelectors';
 
 const ProjectConfiguration: React.FC = () => {
   const selectedProject = useAppSelector(selectSelectedProject);
+  const studios = useAppSelector(getStudios);
+  const questions = useAppSelector(getQuestions);
 
   return (
     <div className="flex flex-col gap-4 p-6 rounded-xl shadow-sm bg-neutral-50 border-zinc-300 mx-auto max-w-screen-lg">
@@ -60,9 +62,28 @@ const ProjectConfiguration: React.FC = () => {
                 <p className="text-neutral-500">No objectives available for this project.</p>
               )}
             </div>
+
+          </div>
+          <div>
+
+          {selectedProject?.studios?.map((studio) => (
+            <div key={studio.id}>
+              <p className='ml-2'>{studio.id} - Studio Name: {studio.name}</p>
+              {studio.studio_documents?.map((studio_document) => (
+                <div key={studio_document.id}>
+                  <p className='ml-4'>Document Name: {studio_document.name}</p>
+                  <p className='ml-6'>Questions</p>
+                  {studio_document.questions?.map((question) => (
+                    <p className='ml-8' key={question.id}>{question.id} {question.question_trans}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
           </div>
         </div>
       </div>
+      
     </div>
   );
 };

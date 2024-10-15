@@ -10,7 +10,11 @@ import ChatBotEmptyState from '@/components/chatbot/ChatBotEmptyState';
 import { useFetchProjectConversationsQuery } from '@/redux/features/ali/aliApiSlice';
 import { AliResultType } from '@/types/ali';
 
-const ChatBot: React.FC = () => {
+interface ChatBotProps {
+  showSidebar?: boolean
+}
+
+const ChatBot: React.FC<ChatBotProps> = ({ showSidebar=false }) => {
   const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
   const [initialQueryId, setInitialQueryId] = useState<number | null>(null);
   const selectedProject = useSelector(selectSelectedProject);
@@ -34,15 +38,17 @@ const ChatBot: React.FC = () => {
   return (
     <div className="flex w-full bg-white rounded-lg">
       {/* Sidebar */}
-      <ChatBotSidebar
-        selectedConversationId={selectedConversationId}
+      {showSidebar && (
+        <ChatBotSidebar
+          selectedConversationId={selectedConversationId}
         handleConversationClick={handleConversationSelect}
         conversations={conversations}
         isLoading={convLoading}
         error={convError}
         handleToggleSaved={handleToggleSaved}
-        handleNewConversation={handleNewConversation}
-      />
+          handleNewConversation={handleNewConversation}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex-1">

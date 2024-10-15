@@ -3,8 +3,8 @@
 import { useAppDispatch, useAppSelector,  } from '@/redux/hooks';
 import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { selectSelectedProject, selectSelectedObjectiveIndex } from '@/redux/features/projects/projectSelectors';
-import { setSelectedObjective } from '@/redux/features/projects/projectSlice';
+import { selectSelectedProject, selectSelectedObjectiveIndex, selectSelectedQuestionIndex } from '@/redux/features/projects/projectSelectors';
+import { setSelectedObjective, setSelectedQuestion } from '@/redux/features/projects/projectSlice';
 
 const ObjectiveSelector: React.FC = () => {
 
@@ -12,27 +12,26 @@ const ObjectiveSelector: React.FC = () => {
 
   // Get the selected project and selected objective index from Redux
   const selectedProject = useAppSelector(selectSelectedProject);
-  const selectedObjectiveIndex = useAppSelector(selectSelectedObjectiveIndex);
-
+  const selectedQuestionIndex = useAppSelector(selectSelectedQuestionIndex);
+  
   // If no project or objectives, don't render the selector
-  if (!selectedProject || !selectedProject.objectives || selectedProject.objectives.length === 0) {
-    return <div>No objectives available for this project.</div>;
+  if (!selectedProject || !selectedProject.questions || selectedProject.questions.length === 0) {
+    return <div>No questions available for this project.</div>;
   }
 
-  const objectives = selectedProject.objectives;
+  const questions = selectedProject.questions;
 
-  // Handle selection change, dispatch selected objective to Redux
   const handleSelectionChange = (index: number) => {
-    dispatch(setSelectedObjective(index));  // Set the selected objective index in Redux
+    dispatch(setSelectedQuestion(index));
   };
 
   return (
-    <Listbox value={selectedObjectiveIndex ?? 0} onChange={handleSelectionChange}>
+    <Listbox value={selectedQuestionIndex ?? 0} onChange={handleSelectionChange}>
       <Label className="block text-sm text-slate-700">Select your objective</Label>
       <div className="relative mt-2">
         <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-primary sm:text-sm sm:leading-6">
           <span className="flex items-center">
-            <span className="ml-3 block truncate">{objectives[selectedObjectiveIndex ?? 0]}</span>
+            <span className="ml-3 block truncate">{questions[selectedQuestionIndex ?? 0].objective_text}</span>
           </span>
           <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
             <ChevronUpDownIcon aria-hidden="true" className="h-5 w-5 text-gray-400" />
@@ -43,7 +42,7 @@ const ObjectiveSelector: React.FC = () => {
           transition
           className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
         >
-          {objectives.map((objective, index) => (
+          {questions.map((question, index) => (
             <ListboxOption
               key={index}
               value={index}
@@ -51,7 +50,7 @@ const ObjectiveSelector: React.FC = () => {
             >
               <div className="flex items-center">
                 <span className="ml-3 block truncate font-normal group-data-[selected]:font-semibold">
-                  {objective}
+                  {question.objective_text}
                 </span>
               </div>
 

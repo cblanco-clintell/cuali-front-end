@@ -4,7 +4,7 @@ import ChatBot from '@/components/chatbot/ChatBot';
 
 const ChatPage = () => {
     return (
-        <ChatBot/>
+        <ChatBot showSidebar={true}/>
     );
 };
 

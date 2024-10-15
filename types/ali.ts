@@ -1,17 +1,17 @@
-import { ProjectType } from "./projects";
+import { ProjectModel } from "./projects";
 
-export interface AliConversationType {
+export interface AliConversationModel {
   id: number;
   created: string;
   updated: string;
   user: any;
-  project: ProjectType;
+  project: ProjectModel;
   saved: boolean;
   title: string;
-  results: AliResultType[];
+  results: AliResultModel[];
 }
 
-export interface AliResultType {
+export interface AliResultModel {
   id: number;
   created: string;
   query: string;
@@ -20,7 +20,7 @@ export interface AliResultType {
   conversation_embedding: number[] | null;
   studio_ids: number[] | null;
   user: any;
-  project: ProjectType;
+  project: ProjectModel;
   conversation: number | null;
 }
 

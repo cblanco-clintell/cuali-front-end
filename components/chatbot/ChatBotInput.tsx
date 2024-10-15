@@ -18,13 +18,15 @@ const ChatBotInput: React.FC<ChatBotInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
 
-  const handleButtonClick = () => {
-    if (isGenerating) {
-      onStopGenerating();
-    } else if (!disabled && message.trim()) {
+  const handleSendClick = () => {
+    if (!disabled && message.trim()) {
       onSendMessage(message.trim());
       setMessage('');
     }
+  };
+
+  const handleStopClick = () => {
+    onStopGenerating();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -48,24 +50,28 @@ const ChatBotInput: React.FC<ChatBotInputProps> = ({
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask something here..."
-          className="w-full text-sm outline-none border border-zinc-400 rounded-lg px-4 pr-10 py-2 focus:border-accent focus:ring-1 focus:ring-accent"
+          className="w-full text-sm outline-none border border-zinc-400 rounded-lg px-4 pr-20 py-2 focus:border-accent focus:ring-1 focus:ring-accent"
         />
+        {isGenerating && (
+          <button
+            type="button"
+            onClick={handleStopClick}
+            className="absolute right-10 p-2 rounded-lg text-red-600 hover:text-white hover:bg-red-600"
+          >
+            <VscDebugStop className="w-5 h-5" />
+          </button>
+        )}
         <button
-          onClick={handleButtonClick}
+          type="button"
+          onClick={handleSendClick}
           className={`absolute right-1 p-2 rounded-lg ${
-            isGenerating
-              ? 'text-red-600 hover:text-white hover:bg-red-600'
-              : disabled
+            disabled
               ? 'text-gray-400 cursor-not-allowed bg-gray-200'
               : 'text-accent hover:text-white hover:bg-accent'
           }`}
           disabled={disabled}
         >
-          {isGenerating ? (
-            <VscDebugStop className="w-4 h-4" />
-          ) : (
-            <VscSend className="w-4 h-4" />
-          )}
+          <VscSend className="w-5 h-5" />
         </button>
       </div>
       <div className="mt-2 text-xs text-neutral-500 text-center">

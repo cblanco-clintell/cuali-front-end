@@ -2,40 +2,40 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Text } from '@visx/text';
 import { scaleLog } from '@visx/scale';
 import Wordcloud from '@visx/wordcloud/lib/Wordcloud';
-
-interface WordData {
-  text: string;
-  value: number;
-  sentiment: 'positive' | 'neutral' | 'negative'; // Use sentiment key
-}
+import { Keyword } from '../types/keywords';
 
 interface WordCloudProps {
   height: number;
-  words: WordData[];
+  words: Keyword[];
 }
 
-// Define colors for each sentiment
-const sentimentColors = {
+// Define colors for each valence
+const valenceColors = {
   positive: '#9AE17B',
   neutral: '#FFC55B',
   negative: '#E8704E',
 };
 
-const fontSizeSetter = (datum: WordData, scale: any) => scale(datum.value);
+const fontSizeSetter = (datum: Keyword) => datum.sentiment;
 
 const fixedValueGenerator = () => 0.5;
 
 type SpiralType = 'archimedean' | 'rectangular';
 
+interface WordCloudWord extends Keyword {
+  text: string;
+  size: number;
+}
+
 const WordCloud: React.FC<WordCloudProps> = ({ height, words }) => {
-  const [spiralType, setSpiralType] = React.useState<SpiralType>('archimedean');
+  const [spiralType] = useState<SpiralType>('archimedean');
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
-  // Set font scale based on the provided words' values
+  // Set font scale based on the provided words' sentiment values
   const fontScale = scaleLog({
-    domain: [Math.min(...words.map((w) => w.value)), Math.max(...words.map((w) => w.value))],
-    range: [5, 50],
+    domain: [Math.min(...words.map((w) => w.sentiment)), Math.max(...words.map((w) => w.sentiment))],
+    range: [10, 100],
   });
 
   useEffect(() => {
@@ -47,14 +47,20 @@ const WordCloud: React.FC<WordCloudProps> = ({ height, words }) => {
     }
   }, []);
 
+  const wordcloudWords: WordCloudWord[] = words.map(word => ({
+    ...word,
+    text: word.keyword,
+    size: fontScale(word.sentiment)
+  }));
+
   return (
     <div className="wordcloud" ref={containerRef}>
       {containerWidth > 0 && (
         <Wordcloud
-          words={words}
+          words={wordcloudWords}
           width={containerWidth}
           height={height}
-          fontSize={(word) => fontSizeSetter(word, fontScale)}
+          fontSize={(word) => word.size}
           font={'__DM_Sans_0dfae3'}
           padding={2}
           spiral={spiralType}
@@ -62,10 +68,10 @@ const WordCloud: React.FC<WordCloudProps> = ({ height, words }) => {
           random={fixedValueGenerator}
         >
           {(cloudWords) =>
-            cloudWords.map((w) => (
+            cloudWords.map((w, i) => (
               <Text
-                key={w.text}
-                fill={sentimentColors[w.sentiment]} // Map sentiment to color
+                key={`${w.text}-${i}`}
+                fill={valenceColors[w.valence]}
                 textAnchor={'middle'}
                 transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
                 fontSize={w.size}

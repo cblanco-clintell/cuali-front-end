@@ -23,7 +23,7 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
   initialQueryId,
 }) => {
   const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);
-  const [queryId, setQueryId] = useState<number | null>(null);
+  const [queryIds, setQueryIds] = useState<number[]>([]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedProject = useSelector(selectSelectedProject);
@@ -42,23 +42,26 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
 
   useEffect(() => {
     if (initialQueryId) {
-      setQueryId(initialQueryId);
+      setQueryIds([initialQueryId]);
     }
   }, [initialQueryId]);
 
   useEffect(() => {
-    if (queryId) {
-      setupEventSource(queryId);
-    }
+    queryIds.forEach((qid) => {
+      setupEventSource(qid);
+    });
 
     return () => {
-      if (queryId && eventSourcesRef.current[queryId]) {
-        eventSourcesRef.current[queryId].close();
-        delete eventSourcesRef.current[queryId];
-        setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
-      }
+      queryIds.forEach((qid) => {
+        if (eventSourcesRef.current[qid]) {
+          eventSourcesRef.current[qid].close();
+          delete eventSourcesRef.current[qid];
+          setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
+        }
+      });
     };
-  }, [queryId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryIds]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -128,7 +131,7 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
       const newResult: AliResultType = { ...result, response: '' };
       setConversationResults((prevResults) => [...prevResults, newResult]);
 
-      setQueryId(result.id);
+      setQueryIds((prevQueryIds) => [...prevQueryIds, result.id]);
     } catch (error) {
       toast.error('Failed to send message.');
     }

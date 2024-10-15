@@ -32,7 +32,7 @@ export default function Setup() {
     // Effect to dispatch projects data to Redux store
     useEffect(() => {
         if (!projectsIsLoading && !projectsIsFetching && projects) {
-            dispatch(setProjects(projects)); // Dispatch projects data to Redux store
+            dispatch(setProjects(projects));
         }
     }, [projects, projectsIsLoading, projectsIsFetching, dispatch]);
 
