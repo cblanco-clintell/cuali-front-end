@@ -35,15 +35,19 @@ const ProjectSpeakers: React.FC<ProjectSpeakersProps> = () => {
         />
       </div>
       <div className="grid grid-cols-1 gap-4">
-        <Card title="Speaker Rename" className="mt-5">
+        {/* <Card title="Speaker Rename" className="mt-5">
           <SpeakerRename
               selectedStudioId={selectedStudioId}
               renamedSpeakers={renamedSpeakers}
               onRenameSpeaker={handleRenameSpeaker}
             />
-        </Card>
-        <Card title="Speaker Times" className="mt-5">
-          <SpeakerTime selectedStudioId={selectedStudioId} renamedSpeakers={renamedSpeakers} />
+        </Card> */}
+        <Card title="Speakers" className="mt-5">
+        <SpeakerTime
+          selectedStudioId={selectedStudioId}
+          renamedSpeakers={renamedSpeakers}
+          onRenameSpeaker={handleRenameSpeaker}
+          />
         </Card>
         <Card title="Speaker Keywords" className="mt-5">
           <SpeakerKeywords selectedStudioId={selectedStudioId} renamedSpeakers={renamedSpeakers} />

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useAppSelector } from '@/redux/hooks';
-import { selectKeywordSegments } from '@/redux/features/projects/projectSelectors';
+import { selectKeywordSegments, getStudioDocumentByID } from '@/redux/features/projects/projectSelectors';
 import { Keyword } from '@/types/keywords';
 import { Segment } from '@/types/segments';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import VerbatimListItem from './VerbatimListItem';
-import Transcript from './Transcript';
+import SidePanel from '../common/SidePanel';
+import TranscriptContent from '../transcripts/TranscriptContent';
 
 interface VerbatimListProps {
   keywords: Keyword[];
@@ -15,6 +16,10 @@ const VerbatimList: React.FC<VerbatimListProps> = ({ keywords }) => {
   const keywordsWithSegments = useAppSelector(state => selectKeywordSegments(state, keywords));
   const [expandedKeywords, setExpandedKeywords] = useState<Set<string>>(new Set());
   const [selectedSegment, setSelectedSegment] = useState<Segment | null>(null);
+  
+  const selectedDocument = useAppSelector(state => 
+    selectedSegment ? getStudioDocumentByID(state, selectedSegment.studio_document ?? 0) : null
+  );
 
   const toggleKeyword = (keyword: string) => {
     setExpandedKeywords(prev => {
@@ -30,6 +35,10 @@ const VerbatimList: React.FC<VerbatimListProps> = ({ keywords }) => {
 
   const handleSegmentClick = (segment: Segment) => {
     setSelectedSegment(segment);
+  };
+
+  const handleCloseTranscript = () => {
+    setSelectedSegment(null);
   };
 
   return (
@@ -68,11 +77,15 @@ const VerbatimList: React.FC<VerbatimListProps> = ({ keywords }) => {
         )}
       </div>
       {selectedSegment && (
-        <Transcript 
-          studioDocumentId={selectedSegment.studio_document ?? 0}
-          selectedSegmentId={selectedSegment.id}
-          onClose={() => setSelectedSegment(null)}
-        />
+        <SidePanel 
+          title={`Transcript: ${selectedDocument?.name || 'Audio'}`} 
+          onClose={handleCloseTranscript}
+        >
+          <TranscriptContent 
+            studioDocumentId={selectedSegment.studio_document ?? 0}
+            selectedSegmentId={selectedSegment.id}
+          />
+        </SidePanel>
       )}
     </div>
   );
