@@ -18,7 +18,7 @@ export interface ProjectModel {
   status: ProjectStatus;
   user: User | null;
   briefing: string | null;
-  objectives: Objective[] | null;
+  objectives: string[] | null;
   state?: StudioProcessStatus | null; 
   stateText?: string; 
   lastPresentationState?: string | null;
