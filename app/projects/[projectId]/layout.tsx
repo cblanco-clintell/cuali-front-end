@@ -94,13 +94,13 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
         {/* Main Content Area */}
         <div className={`flex-1 grid ${showChatBot ? 'grid-cols-2' : 'grid-cols-1'} h-full`}>
           {/* Content Area */}
-          <div className="overflow-y-auto">
+          <div className="overflow-y-auto px-5">
             <div>{children}</div>
           </div>
 
           {/* ChatBot */}
           {!isAli && showChatBot && (
-            <div className="h-full border mx-4 rounded-lg">
+            <div className="h-full border m-5 rounded-lg">
               <ChatBot />
             </div>
           )}

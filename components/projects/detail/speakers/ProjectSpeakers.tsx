@@ -6,6 +6,8 @@ import SpeakerTime from '@/components/speakers/SpeakerTime';
 import SpeakerRename from '@/components/speakers/SpeakerRename';
 import SpeakerKeywords from '@/components/speakers/SpeakerKeywords';
 import StudioSelector from '@/components/common/StudioSelector';
+import TranscriptionViewer from '@/components/speakers/TranscriptionViewer';
+import Card from '@/components/common/Card';
 
 interface ProjectSpeakersProps {}
 
@@ -25,7 +27,7 @@ const ProjectSpeakers: React.FC<ProjectSpeakersProps> = () => {
   };
 
   return (
-    <div className="max-w-screen-xl mx-auto mt-5">
+    <div className="max-w-screen-xl mx-auto my-5">
       <div className="mb-4">
         <StudioSelector
           selectedStudioId={selectedStudioId}
@@ -33,23 +35,22 @@ const ProjectSpeakers: React.FC<ProjectSpeakersProps> = () => {
         />
       </div>
       <div className="grid grid-cols-1 gap-4">
-        <SpeakerRename
-          selectedStudioId={selectedStudioId}
-          renamedSpeakers={renamedSpeakers}
-          onRenameSpeaker={handleRenameSpeaker}
-        />
-        <div>
-          <h2 className="text-xl font-bold mb-2">Speaker Times</h2>
+        <Card title="Speaker Rename" className="mt-5">
+          <SpeakerRename
+              selectedStudioId={selectedStudioId}
+              renamedSpeakers={renamedSpeakers}
+              onRenameSpeaker={handleRenameSpeaker}
+            />
+        </Card>
+        <Card title="Speaker Times" className="mt-5">
           <SpeakerTime selectedStudioId={selectedStudioId} renamedSpeakers={renamedSpeakers} />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold mb-2">Speaker Keywords</h2>
+        </Card>
+        <Card title="Speaker Keywords" className="mt-5">
           <SpeakerKeywords selectedStudioId={selectedStudioId} renamedSpeakers={renamedSpeakers} />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold mb-2">Transcriptions</h2>
-          <SpeakerTranscriptions selectedStudioId={selectedStudioId} renamedSpeakers={renamedSpeakers} />
-        </div>
+        </Card>
+        <Card title="Transcriptions" className="mt-5">
+          <TranscriptionViewer selectedStudioId={selectedStudioId} renamedSpeakers={renamedSpeakers} />
+        </Card>
       </div>
     </div>
   );

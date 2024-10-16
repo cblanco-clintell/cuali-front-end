@@ -213,7 +213,9 @@ export const getStudioDocumentSegments = createSelector(
   [selectSelectedProject, (_: RootState, studioDocumentID: number) => studioDocumentID],
   (selectedProject, studioDocumentID) => {
     if (!selectedProject) return [];
-    return selectedProject.segments.filter(segment => segment.studio_document === studioDocumentID);
+    return selectedProject.segments
+      .filter(segment => segment.studio_document === studioDocumentID)
+      .sort((a, b) => a.start - b.start); // Sort segments by start time
   }
 );
 

@@ -1,79 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAppSelector } from '@/redux/hooks';
-import { selectOrganizedSegments } from '@/redux/features/projects/projectSelectors';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import { getStudioDocumentSegments } from '@/redux/features/projects/projectSelectors';
+import { Segment } from '@/types/segments';
 
-// Add renamedSpeakers to props
 interface SpeakerTranscriptionsProps {
-  selectedStudioId: number | null;
+  selectedDocumentId: number | null;
   renamedSpeakers: Record<string, string>;
 }
 
-const SpeakerTranscriptions: React.FC<SpeakerTranscriptionsProps> = ({ selectedStudioId, renamedSpeakers }) => {
-  const organizedSegments = useAppSelector(selectOrganizedSegments);
-  const [expandedDocuments, setExpandedDocuments] = useState<Set<number>>(new Set());
+const SpeakerTranscriptions: React.FC<SpeakerTranscriptionsProps> = ({ selectedDocumentId, renamedSpeakers }) => {
   const [expandedSpeakers, setExpandedSpeakers] = useState<Set<string>>(new Set());
+  const segments = useAppSelector(state => 
+    selectedDocumentId ? getStudioDocumentSegments(state, selectedDocumentId) : []
+  );
 
-  useEffect(() => {
-    if (selectedStudioId && organizedSegments[selectedStudioId]?.documents) {
-      const firstDocumentId = Object.keys(organizedSegments[selectedStudioId].documents)[0];
-      if (firstDocumentId) {
-        setExpandedDocuments(new Set([Number(firstDocumentId)]));
+  const speakerSegments: Record<string, Segment[]> = {};
+  segments.forEach(segment => {
+    if (!speakerSegments[segment.speaker]) {
+      speakerSegments[segment.speaker] = [];
+    }
+    speakerSegments[segment.speaker].push(segment);
+  });
+
+  const toggleSpeaker = (speaker: string) => {
+    setExpandedSpeakers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(speaker)) {
+        newSet.delete(speaker);
+      } else {
+        newSet.add(speaker);
       }
-    }
-  }, [selectedStudioId, organizedSegments]);
-
-  const toggleExpanded = (
-    id: number | string, 
-    expandedSet: Set<number | string>, 
-    setExpandedSet: React.Dispatch<React.SetStateAction<Set<number | string>>>
-  ) => {
-    const newSet = new Set(expandedSet);
-    if (newSet.has(id)) {
-      newSet.delete(id);
-    } else {
-      newSet.add(id);
-    }
-    setExpandedSet(newSet);
+      return newSet;
+    });
   };
 
-  const filteredSegments = selectedStudioId
-    ? organizedSegments[selectedStudioId]?.documents || {}
-    : {};
+  if (!selectedDocumentId) {
+    return <p className="text-sm text-gray-500">Please select a document to view the transcriptions.</p>;
+  }
 
   return (
-    <div className="p-4">
-      {Object.entries(filteredSegments).map(([documentId, documentData]) => (
-        <div key={documentId} className="mb-4 border rounded-lg p-4">
-          <button 
-            onClick={() => toggleExpanded(Number(documentId), expandedDocuments, setExpandedDocuments as any)}
-            className="flex justify-between items-center w-full text-left font-bold text-lg"
+    <div>
+      {Object.entries(speakerSegments).map(([speaker, speakerSegments]) => (
+        <div key={speaker} className="mb-4">
+          <button
+            onClick={() => toggleSpeaker(speaker)}
+            className="flex items-center justify-between w-full p-2 bg-gray-100 hover:bg-gray-200 rounded"
           >
-            <span>{documentData.document.name}</span>
-            {expandedDocuments.has(Number(documentId)) ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+            <span>{renamedSpeakers[speaker] || speaker}</span>
+            <span>{expandedSpeakers.has(speaker) ? '▼' : '▶'}</span>
           </button>
-          
-          {expandedDocuments.has(Number(documentId)) && Object.entries(documentData.speakers).map(([speaker, segments]) => (
-            <div key={speaker} className="ml-4 mt-2 border-l-2 pl-4">
-              <button 
-                onClick={() => toggleExpanded(speaker, expandedSpeakers, setExpandedSpeakers as any)}
-                className="flex justify-between items-center w-full text-left font-semibold"
-              >
-                <span>{renamedSpeakers[speaker] || speaker}</span>
-                {expandedSpeakers.has(speaker) ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
-              </button>
-              
-              {expandedSpeakers.has(speaker) && (
-                <div className="ml-4 mt-2">
-                  {segments.map(segment => (
-                    <p key={segment.id} className="text-sm mb-2">
-                      <span className="text-gray-500">{formatTime(segment.start)} - {formatTime(segment.end)}</span>: {segment.transcription}
-                    </p>
-                  ))}
-                </div>
-              )}
+          {expandedSpeakers.has(speaker) && (
+            <div className="mt-2 pl-4">
+              {speakerSegments.map(segment => (
+                <p key={segment.id} className="text-sm mb-2">
+                  <span className="text-gray-500">
+                    ({formatTime(segment.start)} - {formatTime(segment.end)})
+                  </span>
+                  : {segment.transcription}
+                </p>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       ))}
     </div>

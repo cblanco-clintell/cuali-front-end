@@ -35,8 +35,7 @@ const SpeakerRename: React.FC<SpeakerRenameProps> = ({ selectedStudioId, renamed
   };
 
   return (
-    <div className="p-4 border rounded-lg">
-      <h3 className="font-bold text-lg mb-2">Rename Speakers</h3>
+    <div className="p-4 rounded-lg bg-white">
       <div className="grid grid-cols-2 gap-4">
         {Array.from(allSpeakers).map(speaker => (
           <div key={speaker} className="bg-gray-100 p-2 rounded">

@@ -25,7 +25,7 @@ const SpeakerTime: React.FC<SpeakerTimeProps> = ({ selectedStudioId, renamedSpea
     : {};
 
   return (
-    <div className="p-4">
+    <div className="p-4 rounded-lg">
       {Object.entries(filteredSegments).map(([documentId, documentData]) => {
         const totalTime = Object.values(documentData.speakers).reduce(
           (total, segments) => total + calculateSpeakerTime(segments),
@@ -33,8 +33,8 @@ const SpeakerTime: React.FC<SpeakerTimeProps> = ({ selectedStudioId, renamedSpea
         );
 
         return (
-          <div key={documentId} className="mb-6 border rounded-lg p-4">
-            <h3 className="font-bold text-lg mb-2">{documentData.document.name}</h3>
+          <div key={documentId} className="mb-6">
+            <h3 className="font-semibold text-gray-900 text-md">{documentData.document.name}</h3>
             <div className="grid grid-cols-2 gap-4">
               {Object.entries(documentData.speakers).map(([speaker, segments]) => {
                 const speakerTime = calculateSpeakerTime(segments);
