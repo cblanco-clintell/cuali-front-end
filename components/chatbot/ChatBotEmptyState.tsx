@@ -67,7 +67,7 @@ const ChatBotEmptyState: React.FC<ChatBotEmptyStateProps> = ({
       {/* Ali Image */}
       <Image src="/ali.svg" alt="Ali" width={80} height={80} className='mx-auto'/>
       <p className="mt-5 text-center">
-        Hi, I'm Ali! To start a conversation, please select your study groups and ask a question.
+        Hi, I&apos;m Ali! To start a conversation, please select your study groups and ask a question.
       </p>
 
       {/* Studios Dropdown */}
