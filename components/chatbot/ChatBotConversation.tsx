@@ -23,7 +23,6 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
   initialQueryId,
 }) => {
   const [conversationResults, setConversationResults] = useState<AliResultType[]>([]);
-  const [queryIds, setQueryIds] = useState<number[]>([]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedProject = useSelector(selectSelectedProject);
@@ -32,7 +31,7 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
     useFetchConversationResultsQuery(conversationId);
   const [sendAliQuery] = useSendAliQueryMutation();
 
-  const eventSourcesRef = useRef<{ [key: number]: EventSource }>({});
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     if (initialResults) {
@@ -41,27 +40,12 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
   }, [initialResults]);
 
   useEffect(() => {
-    if (initialQueryId) {
-      setQueryIds([initialQueryId]);
-    }
-  }, [initialQueryId]);
-
-  useEffect(() => {
-    queryIds.forEach((qid) => {
-      setupEventSource(qid);
-    });
-
     return () => {
-      queryIds.forEach((qid) => {
-        if (eventSourcesRef.current[qid]) {
-          eventSourcesRef.current[qid].close();
-          delete eventSourcesRef.current[qid];
-          setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
-        }
-      });
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryIds]);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -70,51 +54,43 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
   }, [conversationResults]);
 
   const setupEventSource = (queryId: number) => {
-    if (eventSourcesRef.current[queryId]) return;
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
 
     const eventSource = new EventSource(
       `http://localhost:9000/api/front/ali/conversations/query/${queryId}/`
     );
 
-    eventSourcesRef.current[queryId] = eventSource;
-    setIsGenerating(true); // Start generating
+    eventSourceRef.current = eventSource;
+    setIsGenerating(true);
+
+    let fullResponse = '';
 
     eventSource.onmessage = (event) => {
       const message = event.data;
       if (message === '___close___') {
         eventSource.close();
-        delete eventSourcesRef.current[queryId];
-        setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
+        eventSourceRef.current = null;
+        setIsGenerating(false);
         toast.success('Query completed.');
       } else {
+        fullResponse += message;
         setConversationResults((prevResults) => {
-          const resultIndex = prevResults.findIndex((result) => result.id === queryId);
-          if (resultIndex !== -1) {
-            const updatedResult = {
-              ...prevResults[resultIndex],
-              response: prevResults[resultIndex].response + message,
-            };
-            const newResults = [...prevResults];
-            newResults[resultIndex] = updatedResult;
-            return newResults;
-          } else {
-            // If the result isn't found, add it
-            const newResult: AliResultType = {
-              id: queryId,
-              query: '', // Set appropriately
-              response: message,
-              // ... other fields as needed
-            };
-            return [...prevResults, newResult];
+          const updatedResults = [...prevResults];
+          const lastResult = updatedResults[updatedResults.length - 1];
+          if (lastResult && lastResult.id === queryId) {
+            lastResult.response = fullResponse;
           }
+          return updatedResults;
         });
       }
     };
 
     eventSource.onerror = () => {
       eventSource.close();
-      delete eventSourcesRef.current[queryId];
-      setIsGenerating(Object.keys(eventSourcesRef.current).length > 0);
+      eventSourceRef.current = null;
+      setIsGenerating(false);
       toast.error('Connection lost. Please try again.');
     };
   };
@@ -131,20 +107,19 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
       const newResult: AliResultType = { ...result, response: '' };
       setConversationResults((prevResults) => [...prevResults, newResult]);
 
-      setQueryIds((prevQueryIds) => [...prevQueryIds, result.id]);
+      setupEventSource(result.id);
     } catch (error) {
       toast.error('Failed to send message.');
     }
   };
 
   const handleStopGenerating = () => {
-    // Close all active EventSources
-    Object.values(eventSourcesRef.current).forEach((eventSource) => {
-      eventSource.close();
-    });
-    eventSourcesRef.current = {};
-    setIsGenerating(false);
-    toast.info('Generation stopped.');
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+      setIsGenerating(false);
+      toast.info('Generation stopped.');
+    }
   };
 
   return (
@@ -166,8 +141,12 @@ const ChatBotConversation: React.FC<ChatBotConversationProps> = ({
         {/* Display messages */}
         {isLoading && <p>Loading...</p>}
         {error && <p>Error loading conversation.</p>}
-        {conversationResults.map((result) => (
-          <ChatBotResult key={result.id} result={result} />
+        {conversationResults.map((result, index) => (
+          <ChatBotResult 
+            key={result.id} 
+            result={result} 
+            isGenerating={isGenerating && index === conversationResults.length - 1}
+          />
         ))}
       </div>
       <div className="p-4">

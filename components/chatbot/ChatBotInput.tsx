@@ -19,7 +19,7 @@ const ChatBotInput: React.FC<ChatBotInputProps> = ({
   const [message, setMessage] = useState('');
 
   const handleSendClick = () => {
-    if (!disabled && message.trim()) {
+    if (!disabled && !isGenerating && message.trim()) {
       onSendMessage(message.trim());
       setMessage('');
     }
@@ -30,7 +30,7 @@ const ChatBotInput: React.FC<ChatBotInputProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (disabled) {
+    if (disabled || isGenerating) {
       e.preventDefault();
       return;
     }
@@ -51,28 +51,30 @@ const ChatBotInput: React.FC<ChatBotInputProps> = ({
           onKeyDown={handleKeyDown}
           placeholder="Ask something here..."
           className="w-full text-sm outline-none border border-zinc-400 rounded-lg px-4 pr-20 py-2 focus:border-accent focus:ring-1 focus:ring-accent"
+          disabled={isGenerating}
         />
-        {isGenerating && (
+        {isGenerating ? (
           <button
             type="button"
             onClick={handleStopClick}
-            className="absolute right-10 p-2 rounded-lg text-red-600 hover:text-white hover:bg-red-600"
+            className="absolute right-1 p-2 rounded-lg text-red-600 hover:text-white hover:bg-red-600"
           >
             <VscDebugStop className="w-5 h-5" />
           </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSendClick}
+            className={`absolute right-1 p-2 rounded-lg ${
+              disabled || !message.trim()
+                ? 'text-gray-400 cursor-not-allowed bg-gray-200'
+                : 'text-accent hover:text-white hover:bg-accent'
+            }`}
+            disabled={disabled || !message.trim()}
+          >
+            <VscSend className="w-5 h-5" />
+          </button>
         )}
-        <button
-          type="button"
-          onClick={handleSendClick}
-          className={`absolute right-1 p-2 rounded-lg ${
-            disabled
-              ? 'text-gray-400 cursor-not-allowed bg-gray-200'
-              : 'text-accent hover:text-white hover:bg-accent'
-          }`}
-          disabled={disabled}
-        >
-          <VscSend className="w-5 h-5" />
-        </button>
       </div>
       <div className="mt-2 text-xs text-neutral-500 text-center">
         Ali can make mistakes. Consider double-checking important information.
