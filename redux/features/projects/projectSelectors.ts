@@ -3,7 +3,7 @@ import { RootState } from '@/redux/store';
 import { Keyword } from '@/types/keywords';
 import { Category } from '@/types/categories';
 import { Segment } from '@/types/segments';
-import { StudioModel } from '@/types/studios';
+import { StudioModel, StudioDocumentModel } from '@/types/studios';
 
 // Basic selectors
 export const selectProjects = (state: RootState) => state.projects.projects || [];
@@ -214,5 +214,73 @@ export const getStudioDocumentSegments = createSelector(
   (selectedProject, studioDocumentID) => {
     if (!selectedProject) return [];
     return selectedProject.segments.filter(segment => segment.studio_document === studioDocumentID);
+  }
+);
+
+interface OrganizedSegments {
+  [studioId: number]: {
+    studio: StudioModel;
+    documents: {
+      [documentId: number]: {
+        document: StudioDocumentModel;
+        speakers: {
+          [speaker: string]: Segment[];
+        };
+      };
+    };
+  };
+}
+
+export const selectOrganizedSegments = createSelector(
+  [selectSelectedProject],
+  (selectedProject): OrganizedSegments => {
+    if (!selectedProject) return {};
+
+    const organizedSegments: OrganizedSegments = {};
+
+    selectedProject.studios.forEach(studio => {
+      organizedSegments[studio.id] = {
+        studio: studio,
+        documents: {}
+      };
+
+      studio.studio_documents.forEach(document => {
+        organizedSegments[studio.id].documents[document.id] = {
+          document: document,
+          speakers: {}
+        };
+      });
+    });
+
+    selectedProject.segments.forEach(segment => {
+      if (segment.studio_document) {
+        const studio = selectedProject.studios.find(s => 
+          s.studio_documents.some(d => d.id === segment.studio_document)
+        );
+
+        if (studio) {
+          const studioId = studio.id;
+          const documentId = segment.studio_document;
+          const speaker = segment.speaker;
+
+          if (!organizedSegments[studioId].documents[documentId].speakers[speaker]) {
+            organizedSegments[studioId].documents[documentId].speakers[speaker] = [];
+          }
+
+          organizedSegments[studioId].documents[documentId].speakers[speaker].push(segment);
+        }
+      }
+    });
+
+    // Sort segments within each speaker group
+    // Object.values(organizedSegments).forEach(studio => {
+    //   Object.values(studio.documents).forEach(document => {
+    //     Object.values(document.speakers).forEach(segments => {
+    //       segments.sort((a: Segment, b: Segment) => a.start - b.start);
+    //     });
+    //   });
+    // });
+
+    return organizedSegments;
   }
 );
