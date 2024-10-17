@@ -7,9 +7,11 @@ interface StudioCardListProps {
   studios: StudioModel[];
   onUpload: (studioId: number, file: File) => void;
   onAddStudio: () => void;
+  onEditStudio: (studio: StudioModel) => void;
+  onDeleteStudio: (studio: StudioModel) => void;
 }
 
-const StudioCardList: React.FC<StudioCardListProps> = ({ studios, onUpload, onAddStudio }) => {
+const StudioCardList: React.FC<StudioCardListProps> = ({ studios, onUpload, onAddStudio, onEditStudio, onDeleteStudio }) => {
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
@@ -27,8 +29,8 @@ const StudioCardList: React.FC<StudioCardListProps> = ({ studios, onUpload, onAd
           key={studio.id} 
           studio={studio} 
           onUpload={onUpload}
-          onEdit={() => {}} // Implement these functions in the parent component
-          onDelete={() => {}} // Implement these functions in the parent component
+          onEdit={() => onEditStudio(studio)}
+          onDelete={() => onDeleteStudio(studio)}
         />
       ))}
     </div>

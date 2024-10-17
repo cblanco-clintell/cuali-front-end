@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { FiFile, FiChevronDown, FiChevronUp, FiUpload, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { StudioModel, StudioDocument } from '@/types/studios'; // Adjust the import path as needed
@@ -5,8 +6,8 @@ import { StudioModel, StudioDocument } from '@/types/studios'; // Adjust the imp
 interface StudioCardProps {
   studio: StudioModel;
   onUpload: (studioId: number, file: File) => void;
-  onEdit: (studioId: number) => void;
-  onDelete: (studioId: number) => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 const StudioCard: React.FC<StudioCardProps> = ({ studio, onUpload, onEdit, onDelete }) => {
@@ -47,14 +48,14 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onUpload, onEdit, onDel
             />
           </label>
           <button
-            onClick={() => onEdit(studio.id)}
-            className="inline-flex items-center rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            onClick={onEdit}
+            className="hover:text-blue-800"
           >
             <FiEdit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(studio.id)}
-            className="inline-flex items-center rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            onClick={onDelete}
+            className="hover:text-red-800"
           >
             <FiTrash2 className="w-4 h-4" />
           </button>

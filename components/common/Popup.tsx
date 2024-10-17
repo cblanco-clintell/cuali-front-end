@@ -8,6 +8,7 @@ interface PopupProps {
 
 const Popup: React.FC<PopupProps> = ({ onClose, children, extraClasses }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  extraClasses = extraClasses || 'min-w-[500px]';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -22,12 +23,24 @@ const Popup: React.FC<PopupProps> = ({ onClose, children, extraClasses }) => {
   }, [onClose]);
 
   return (
-    <div className="absolute inset-0 w-[102%] h-[102vh] max-h-screen flex items-center justify-center z-50 backdrop-blur -m-[1%]">
-      <div className={`bg-white rounded-lg border border-gray-200 p-5 ${extraClasses}`} ref={modalRef}>
-        <button onClick={onClose} className="absolute top-2 right-2 text-gray-600 hover:text-gray-900">
-          &#x2715;
-        </button>
-        {children}
+    <div className="absolute inset-0 flex items-center justify-center z-50 backdrop-blur">
+      <div
+        className={`relative bg-white rounded-lg border border-gray-200 ${extraClasses}`}
+        ref={modalRef}
+      >
+        <div className="relative">
+          {/* Close button inside the content */}
+          <button
+            onClick={onClose}
+            className="absolute top-1 right-2 text-gray-600 hover:text-gray-900"
+          >
+            &#x2715;
+          </button>
+          {/* Children content goes here */}
+          <div className='p-5'>
+          {children}
+          </div>
+        </div>
       </div>
     </div>
   );
