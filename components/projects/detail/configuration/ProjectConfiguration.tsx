@@ -6,6 +6,7 @@ import ProjectGeneralInfo from '@/components/configuration/ProjectGeneralInfo';
 import StudioForm from '@/components/studios/StudioForm';
 import Popup from '@/components/common/Popup';
 import { StudioModel } from '@/types/studios';
+import { useCreateStudioMutation, useUpdateStudioMutation } from '@/redux/features/studios/studioApiSlice';
 
 const ProjectConfiguration: React.FC = () => {
   const studios = useAppSelector(getStudios);
@@ -14,6 +15,9 @@ const ProjectConfiguration: React.FC = () => {
   const [editingStudio, setEditingStudio] = useState<StudioModel | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [studioToDelete, setStudioToDelete] = useState<StudioModel | null>(null);
+
+  const [createStudio] = useCreateStudioMutation();
+  const [updateStudio] = useUpdateStudioMutation();
 
   const handleUpload = (studioId: number, file: File) => {
     console.log(`Uploading file ${file.name} to studio ${studioId}`);
@@ -34,23 +38,47 @@ const ProjectConfiguration: React.FC = () => {
     setShowDeleteConfirmation(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (studioToDelete) {
-      console.log(`Deleting studio: ${studioToDelete.name}, id: ${studioToDelete.id}`);
-      // Here you would typically dispatch an action to delete the studio
-      // For example: dispatch(deleteStudio(studioToDelete.id));
+  const handleConfirmDelete = async() => {
+    if (studioToDelete && selectedProject) {
+      try {
+        await updateStudio({
+          projectId: selectedProject.id,
+          studioId: studioToDelete.id,
+          status: 'DELETED',
+        }).unwrap();
+        console.log(`Deleted studio: ${studioToDelete.name}, id: ${studioToDelete.id}`);
+      } catch (error) {
+        console.error('Failed to delete studio:', error);
+      }
     }
     setShowDeleteConfirmation(false);
     setStudioToDelete(null);
   };
 
-  const handleSubmitStudio = (name: string, language: string) => {
-    if (editingStudio) {
-      console.log(`Updating studio: ${name}, language: ${language}, id: ${editingStudio.id}`);
-      // dispatch(updateStudio({ id: editingStudio.id, name, language }));
+  const handleSubmitStudio = async (name: string, language: string) => {
+    if (editingStudio && selectedProject) {
+      try {
+        await updateStudio({
+          projectId: selectedProject.id,
+          studioId: editingStudio.id,
+          name,
+          language,
+        }).unwrap();
+        console.log(`Updated studio: ${name}, language: ${language}, id: ${editingStudio.id}`);
+      } catch (error) {
+        console.error('Failed to update studio:', error);
+      }
     } else if (selectedProject) {
-      console.log(`Creating studio: ${name}, language: ${language}, for project: ${selectedProject.id}`);
-      // dispatch(createStudio({ name, language, projectId: selectedProject.id }));
+      try {
+        await createStudio({
+          projectId: selectedProject.id,
+          name,
+          language,
+        }).unwrap();
+        console.log(`Created studio: ${name}, language: ${language}, for project: ${selectedProject.id}`);
+      } catch (error) {
+        console.error('Failed to create studio:', error);
+      }
     }
     setShowStudioForm(false);
     setEditingStudio(null);
@@ -90,7 +118,7 @@ const ProjectConfiguration: React.FC = () => {
         <Popup onClose={handleClosePopup}>
           <div className="p-4">
             <h3 className="text-lg font-semibold mb-2">Confirm Delete</h3>
-            <p className="mb-4">Are you sure you want to delete the studio "{studioToDelete.name}"?</p>
+            <p className="mb-4">Are you sure you want to delete the studio {studioToDelete.name}?</p>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={handleClosePopup}
