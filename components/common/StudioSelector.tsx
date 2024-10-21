@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppSelector } from '@/redux/hooks';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 
@@ -9,6 +9,12 @@ interface StudioSelectorProps {
 
 const StudioSelector: React.FC<StudioSelectorProps> = ({ selectedStudioId, onStudioSelect }) => {
   const selectedProject = useAppSelector(selectSelectedProject);
+
+  useEffect(() => {
+    if (selectedProject && selectedProject.studios.length > 0 && !selectedStudioId) {
+      onStudioSelect(selectedProject.studios[0].id);
+    }
+  }, [selectedProject, selectedStudioId, onStudioSelect]);
 
   if (!selectedProject) return null;
 

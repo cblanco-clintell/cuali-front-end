@@ -5,6 +5,7 @@ import {
   updateProjectCategories,
   updateProjectSegments,
   updateProjectStudios,
+  updateProjectGrammar,
 } from './projectSlice';
 
 const projectApiSlice = apiSlice.injectEndpoints({
@@ -91,6 +92,20 @@ const projectApiSlice = apiSlice.injectEndpoints({
         }
       },
     }),
+    getProjectGrammar: builder.query({
+      query: (projectId: string) => ({
+        url: `/projects/${projectId}/grammar/`,
+        method: 'GET',
+      }),
+      async onQueryStarted(projectId, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(updateProjectGrammar({ projectId: Number(projectId), grammar: data }));
+        } catch {
+          // Handle error
+        }
+      },
+    }),
   }),
 });
 
@@ -102,4 +117,5 @@ export const {
   useLazyGetProjectCategoriesQuery,
   useLazyGetProjectSegmentsQuery,
   useLazyGetProjectStudiosQuery,
+  useLazyGetProjectGrammarQuery,
 } = projectApiSlice;

@@ -4,7 +4,8 @@ import { Segment } from "./segments";
 import { Objective } from "./objectives";
 import { Category } from "./categories";
 import { User } from "./user";
-import { Questions } from "./questions";
+import { Question } from "./questions";
+import { GrammarData } from "./grammar";
 
 export enum ProjectStatus {
   VALID = 'VALID',
@@ -26,5 +27,6 @@ export interface ProjectModel {
   categories: Category[];
   keywords: Keyword[];
   segments: Segment[];
-  questions: Questions | null;
+  questions: Question[] | null;
+  grammar?: GrammarData[];
 }

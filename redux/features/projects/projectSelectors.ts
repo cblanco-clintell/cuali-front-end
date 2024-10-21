@@ -4,6 +4,7 @@ import { Keyword } from '@/types/keywords';
 import { Category } from '@/types/categories';
 import { Segment } from '@/types/segments';
 import { StudioModel, StudioDocumentModel } from '@/types/studios';
+import { GrammarData } from '@/types/grammar';
 
 // Basic selectors
 export const selectProjects = (state: RootState) => state.projects.projects || [];
@@ -22,7 +23,7 @@ export const selectSelectedProject = createSelector(
 export const selectSelectedQuestion = createSelector(
   [selectSelectedProject, selectSelectedQuestionIndex],
   (selectedProject, selectedQuestionIndex) => {
-    return selectedProject?.questions[selectedQuestionIndex] || null;
+    return selectedProject?.questions?.[selectedQuestionIndex] || null;
   }
 )
 
@@ -284,5 +285,23 @@ export const selectOrganizedSegments = createSelector(
     // });
 
     return organizedSegments;
+  }
+);
+
+export const selectProjectGrammar = createSelector(
+  [selectSelectedProject, (_: RootState, studioId?: number) => studioId],
+  (selectedProject, studioId): GrammarData[] | undefined => {
+    if (!selectedProject?.grammar) return undefined;
+
+    if (studioId !== undefined) {
+      return selectedProject.grammar.filter(g => {
+        const studio = selectedProject.studios.find(s => 
+          s.studio_documents.some(d => d.id === g.studio_document)
+        );
+        return studio?.id === studioId;
+      });
+    }
+
+    return selectedProject.grammar;
   }
 );

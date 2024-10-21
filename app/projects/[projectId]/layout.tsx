@@ -18,6 +18,7 @@ import {
   useLazyGetProjectCategoriesQuery,
   useLazyGetProjectSegmentsQuery,
   useLazyGetProjectStudiosQuery,
+  useLazyGetProjectGrammarQuery,
 } from '@/redux/features/projects/projectApiSlice';
 
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
@@ -40,6 +41,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   const [fetchCategories] = useLazyGetProjectCategoriesQuery();
   const [fetchSegments] = useLazyGetProjectSegmentsQuery();
   const [fetchStudios] = useLazyGetProjectStudiosQuery();
+  const [fetchGrammar] = useLazyGetProjectGrammarQuery();
   useEffect(() => {
     if (projectId && typeof projectId === 'string') {
       dispatch(setSelectedProject(parseInt(projectId)));
@@ -53,10 +55,11 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
         fetchKeywords(project.id),
         fetchCategories(project.id),
         fetchSegments(project.id),
-        fetchStudios(project.id)
+        fetchStudios(project.id),
+        fetchGrammar(project.id),
       ]).then(() => setIsDataLoaded(true));
     }
-  }, [project, fetchKeywords, fetchQuestions, fetchCategories, fetchSegments, fetchStudios]);
+  }, [project, fetchKeywords, fetchQuestions, fetchCategories, fetchSegments, fetchStudios, fetchGrammar]);
 
   if (isLoading || !isDataLoaded) {
     return <div>Loading project data...</div>;

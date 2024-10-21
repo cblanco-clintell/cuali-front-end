@@ -5,6 +5,7 @@ import { Category } from '@/types/categories';
 import { Segment } from '@/types/segments';
 import { Question } from '@/types/questions';
 import { StudioModel } from '@/types/studios';
+import { GrammarData } from '@/types/grammar';
 
 interface ProjectState {
   projects: ProjectModel[];
@@ -67,6 +68,12 @@ const projectSlice = createSlice({
     setSelectedQuestion(state, action: PayloadAction<number>) {
       state.selectedQuestionIndex = action.payload;
     },
+    updateProjectGrammar(state, action: PayloadAction<{ projectId: number; grammar: GrammarData }>) {
+      const project = state.projects.find(p => p.id === action.payload.projectId);
+      if (project) {
+        project.grammar = action.payload.grammar;
+      }
+    },
   },
 });
 
@@ -80,6 +87,7 @@ export const {
   updateProjectSegments,
   updateProjectStudios,
   setSelectedQuestion,
+  updateProjectGrammar,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;
