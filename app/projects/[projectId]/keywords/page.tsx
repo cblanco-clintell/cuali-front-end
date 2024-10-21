@@ -1,9 +1,9 @@
 "use client";
 import React from 'react';
-import ProjectKeywords from '@/components/projects/detail/keywords/ProjectKeywords';
+import ProjectGrammar from '@/components/projects/detail/grammar/ProjectGrammar';
 
 export default function KeywordsPage() {
   return (
-    <ProjectKeywords/>
+    <ProjectGrammar/>
   );
 }

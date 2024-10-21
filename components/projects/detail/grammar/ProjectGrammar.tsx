@@ -4,7 +4,7 @@ import { selectSelectedProject } from '@/redux/features/projects/projectSelector
 import StudioSelector from '@/components/common/StudioSelector';
 import GrammarSection from '@/components/grammar/GrammarSection';
 
-const ProjectKeywords: React.FC = () => {
+const ProjectGrammar: React.FC = () => {
   const selectedProject = useAppSelector(selectSelectedProject);
   const [selectedStudioId, setSelectedStudioId] = useState<number | null>(null);
 
@@ -30,4 +30,4 @@ const ProjectKeywords: React.FC = () => {
   );
 };
 
-export default ProjectKeywords;
+export default ProjectGrammar;

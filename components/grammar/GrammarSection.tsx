@@ -2,74 +2,124 @@ import React, { useState, useMemo } from 'react';
 import { useAppSelector } from '@/redux/hooks';
 import { selectProjectGrammar } from '@/redux/features/projects/projectSelectors';
 import { GrammarData, GrammarToken } from '@/types/grammar';
-import { FiMaximize2 } from "react-icons/fi";
-import Popup from '@/components/common/Popup';
+import { FiList, FiCloud, FiMaximize2 } from "react-icons/fi";
+import Card from '@/components/common/Card';
+import GrammarWordCloud from '@/components/grammar/GrammarWordCloud';
 
 interface GrammarSectionProps {
   selectedStudioId: number;
 }
 
+const categoryOrder = ['adj', 'noun', 'verb', 'other'] as const;
+
+const categoryTitles: Record<typeof categoryOrder[number], string> = {
+  adj: "Adjectives",
+  noun: "Nouns",
+  verb: "Verbs",
+  other: "Other Words"
+};
+
 const GrammarSection: React.FC<GrammarSectionProps> = ({ selectedStudioId }) => {
   const studioGrammar = useAppSelector(state => selectProjectGrammar(state, selectedStudioId));
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [viewModes, setViewModes] = useState<Record<string, 'list' | 'cloud'>>({});
+  const [showTranslations, setShowTranslations] = useState<Record<string, boolean>>({});
 
-  const handleFullScreen = () => {
-    setIsPopupOpen(true);
+  const toggleViewMode = (category: string) => {
+    setViewModes(prev => ({
+      ...prev,
+      [category]: prev[category] === 'list' ? 'cloud' : 'list'
+    }));
   };
 
-  const closePopup = () => {
-    setIsPopupOpen(false);
+  const toggleTranslation = (category: string) => {
+    setShowTranslations(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
   };
 
-  const renderGrammarList = (title: string, tokens: GrammarToken[]) => (
-    <div className="mb-4">
-      <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
-      <ul className="list-disc pl-5">
-        {tokens.map((token, index) => (
-          <li key={index} className="text-gray-700">
-            {token.token} ({token.translation}) - Count: {token.count}
-          </li>
-        ))}
-      </ul>
-    </div>
+  const renderGrammarList = (tokens: GrammarToken[], showTranslation: boolean) => (
+    <ul className="list-disc pl-5 overflow-y-auto h-[300px]">
+      {tokens.map((token, index) => (
+        <li key={index} className="text-gray-700">
+          {showTranslation ? token.translation : token.token} - Count: {token.count}
+        </li>
+      ))}
+    </ul>
   );
 
   const renderGrammarContent = useMemo(() => (
-    <div>
-      {studioGrammar?.map((grammarData: GrammarData) => (
-        <div key={grammarData.studio_document} className="mb-6">
-          {/* <h2 className="font-bold text-gray-900 mb-3">Studio Document: {grammarData.studio_document}</h2> */}
-          {renderGrammarList('Nouns', grammarData.categories.noun)}
-          {renderGrammarList('Adjectives', grammarData.categories.adj)}
-          {renderGrammarList('Verbs', grammarData.categories.verb)}
-          {renderGrammarList('Others', grammarData.categories.other)}
-        </div>
-      ))}
-    </div>
-  ), [studioGrammar]);
+    studioGrammar?.map((grammarData: GrammarData) => (
+      <div key={grammarData.studio_document} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {categoryOrder.map((category) => {
+          const viewMode = viewModes[category] || 'list';
+          const showTranslation = showTranslations[category] || false;
+          return (
+            <Card 
+              key={category} 
+              title={categoryTitles[category]}
+              className="relative"
+            >
+              <div className="absolute top-3 right-3 flex items-center gap-2">
+                <label className="themeSwitcherThree relative inline-flex cursor-pointer select-none items-center">
+                  <input
+                    type="checkbox"
+                    checked={showTranslation}
+                    onChange={() => toggleTranslation(category)}
+                    className="sr-only"
+                  />
+                  <div className="shadow-card flex h-[30px] w-[50px] items-center justify-center rounded-md bg-white">
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded ${
+                        !showTranslation ? 'bg-primary text-white' : 'text-body-color'
+                      }`}
+                    >
+                      🇪🇸
+                    </span>
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded ${
+                        showTranslation ? 'bg-primary text-white' : 'text-body-color'
+                      }`}
+                    >
+                      🇬🇧
+                    </span>
+                  </div>
+                </label>
+                <button 
+                  className={`text-sm ${viewMode === 'list' ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-700`}
+                  onClick={() => toggleViewMode(category)}
+                >
+                  {viewMode === 'list' ? <FiList className='w-6 h-6'/> : <FiCloud className='w-6 h-6'/>}
+                </button>
+                <button 
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                  onClick={() => {/* Implement fullscreen logic */}}
+                >
+                  <FiMaximize2 className='w-6 h-6'/>
+                </button>
+              </div>
+              <div className="h-[300px] mt-10">
+                {viewMode === 'list' 
+                  ? renderGrammarList(grammarData.categories[category], showTranslation)
+                  : <GrammarWordCloud 
+                      height={300} 
+                      tokens={grammarData.categories[category]} 
+                      category={category}
+                      showTranslation={showTranslation}
+                    />
+                }
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    ))
+  ), [studioGrammar, viewModes, showTranslations]);
 
   return (
-    <>
-      <section className="relative flex flex-col gap-3 self-stretch p-3 bg-gray-50 rounded-lg border">
-        <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-gray-900 text-sm">Grammar</h2>
-          <button 
-            className="text-sm text-gray-500 hover:text-gray-700"
-            onClick={handleFullScreen}
-          >
-            <FiMaximize2 className='w-6 h-6'/>
-          </button>
-        </div>
-        {renderGrammarContent}
-      </section>
-
-      {isPopupOpen && (
-        <Popup onClose={closePopup} extraClasses="w-[80vw] h-[80vh] overflow-y-auto">
-          <h2 className="font-semibold text-gray-900 text-lg mb-4">Grammar</h2>
-          {renderGrammarContent}
-        </Popup>
-      )}
-    </>
+    <div className="space-y-6">
+      {renderGrammarContent}
+    </div>
   );
 };
 
