@@ -3,11 +3,13 @@ import { useAppSelector } from '@/redux/hooks';
 import { selectSelectedProject, getStudios } from '@/redux/features/projects/projectSelectors';
 import StudioCardList from '@/components/configuration/StudioCardList';
 import ProjectGeneralInfo from '@/components/configuration/ProjectGeneralInfo';
+import ProjectUpdateForm from '@/components/configuration/ProjectUpdateForm';
 import StudioForm from '@/components/studios/StudioForm';
 import Popup from '@/components/common/Popup';
 import ResizableColumns from '@/components/common/ResizableColumns';
 import { StudioModel } from '@/types/studios';
 import { useCreateStudioMutation, useUpdateStudioMutation } from '@/redux/features/studios/studioApiSlice';
+import { ProjectStatus } from '@/types/projects';
 
 const ProjectConfiguration: React.FC = () => {
   const studios = useAppSelector(getStudios);
@@ -92,12 +94,16 @@ const ProjectConfiguration: React.FC = () => {
     setStudioToDelete(null);
   };
 
+  const leftColumnContent = selectedProject?.status === ProjectStatus.DRAFT 
+    ? <ProjectUpdateForm /> 
+    : <ProjectGeneralInfo />;
+
   return (
     <div className="max-w-screen-2xl mx-auto mt-5">
       <h3 className="text-base font-semibold leading-7 text-gray-900">Study Configuration</h3>
       <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">General information and objectives of the study.</p>
       <ResizableColumns
-        leftColumn={<ProjectGeneralInfo />}
+        leftColumn={leftColumnContent}
         rightColumn={
           <StudioCardList 
             studios={studios || []} 

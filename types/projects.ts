@@ -8,6 +8,7 @@ import { Question } from "./questions";
 import { GrammarData } from "./grammar";
 
 export enum ProjectStatus {
+  DRAFT = 'DRAFT',
   VALID = 'VALID',
   DELETED = 'DELETED',
 }

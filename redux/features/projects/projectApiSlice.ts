@@ -31,6 +31,13 @@ const projectApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
     }),
+    updateProject: builder.mutation({
+      query: (project: Partial<ProjectModel>) => ({
+        url: `/projects/${project.id}/`,
+        method: 'PATCH',
+        body: project,
+      }),
+    }),
     getProjectKeywords: builder.query({
       query: (projectId: string) => ({
         url: `/projects/${projectId}/keywords/`,
@@ -128,4 +135,5 @@ export const {
   useLazyGetProjectStudiosQuery,
   useLazyGetProjectGrammarQuery,
   useCreateProjectMutation,
+  useUpdateProjectMutation,
 } = projectApiSlice;
