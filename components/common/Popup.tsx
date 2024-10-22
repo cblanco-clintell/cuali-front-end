@@ -6,7 +6,7 @@ interface PopupProps {
   extraClasses?: string | undefined;
 }
 
-const Popup: React.FC<PopupProps> = ({ onClose, children, extraClasses }) => {
+const Popup: React.FC<PopupProps> = ({ isOpen, onClose, children, extraClasses }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   extraClasses = extraClasses || 'min-w-[500px]';
 

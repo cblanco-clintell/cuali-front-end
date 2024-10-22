@@ -2,17 +2,10 @@ import React from 'react';
 import { formatDate } from '@/utils/formatDate';
 import { FiFolder } from "react-icons/fi";
 import Link from 'next/link';
+import { ProjectModel } from '@/types/projects';
 
 interface ProjectCardProps {
-  project: {
-    id: number;
-    created: string;
-    name: string;
-    status: string;
-    briefing: string | null;
-    objectives: string[] | null;
-    user: number;
-  };
+  project: ProjectModel;
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {

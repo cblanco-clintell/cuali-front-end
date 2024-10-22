@@ -7,13 +7,22 @@ import {
   updateProjectStudios,
   updateProjectGrammar,
 } from './projectSlice';
-
+import { ProjectModel } from '@/types/projects';
 const projectApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProjects: builder.query({
       query: () => ({
         url: `/projects/`,
         method: 'GET',
+      }),
+    }),
+    createProject: builder.mutation({
+      query: (project: Partial<ProjectModel>) => ({
+        url: `/projects/`,
+        method: 'POST',
+        body: {
+          name: project.name,
+        }
       }),
     }),
     getProject: builder.query({
@@ -118,4 +127,5 @@ export const {
   useLazyGetProjectSegmentsQuery,
   useLazyGetProjectStudiosQuery,
   useLazyGetProjectGrammarQuery,
+  useCreateProjectMutation,
 } = projectApiSlice;
