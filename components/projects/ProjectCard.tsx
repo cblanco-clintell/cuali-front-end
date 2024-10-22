@@ -2,7 +2,7 @@ import React from 'react';
 import { formatDate } from '@/utils/formatDate';
 import { FiFolder } from "react-icons/fi";
 import Link from 'next/link';
-import { ProjectModel } from '@/types/projects';
+import { ProjectModel, ProjectStatus } from '@/types/projects';
 
 interface ProjectCardProps {
   project: ProjectModel;
@@ -30,9 +30,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
 
       {/* Project Footer */}
       <footer className="flex gap-10 justify-between items-start mt-3 w-full">
-        <div className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-2xl">
-          Available
-        </div>
+        {project?.status === 'DRAFT' && (
+          <div className="text-xs text-gray-700 bg-gray-50 px-2 py-0.5 rounded-2xl">
+            Draft
+          </div>
+        )}
+        {project?.status === ProjectStatus.VALID && (
+          <div className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-2xl">
+            Available
+          </div>
+        )}
+        
       </footer>
     </article>
     </Link>

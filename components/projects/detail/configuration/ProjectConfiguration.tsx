@@ -59,13 +59,18 @@ const ProjectConfiguration: React.FC = () => {
   };
 
   const handleSubmitStudio = async (name: string, language: string) => {
+    const data: Partial<StudioModel> = {
+      name,
+      language,
+    };
+    
+    console.log("handleSubmitStudio data", data);
     if (editingStudio && selectedProject) {
       try {
         await updateStudio({
           projectId: selectedProject.id,
           studioId: editingStudio.id,
-          name,
-          language,
+          ...data,
         }).unwrap();
         console.log(`Updated studio: ${name}, language: ${language}, id: ${editingStudio.id}`);
       } catch (error) {
@@ -75,8 +80,7 @@ const ProjectConfiguration: React.FC = () => {
       try {
         await createStudio({
           projectId: selectedProject.id,
-          name,
-          language,
+          ...data,
         }).unwrap();
         console.log(`Created studio: ${name}, language: ${language}, for project: ${selectedProject.id}`);
       } catch (error) {

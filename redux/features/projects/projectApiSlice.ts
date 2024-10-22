@@ -8,6 +8,7 @@ import {
   updateProjectGrammar,
 } from './projectSlice';
 import { ProjectModel } from '@/types/projects';
+
 const projectApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProjects: builder.query({

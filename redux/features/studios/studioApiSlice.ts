@@ -4,7 +4,7 @@ const studioApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createStudio: builder.mutation({
       query: ({ projectId, ...studioData }) => ({
-        url: `/studio/project/${projectId}/create/`,
+        url: `/studios/project/${projectId}/create/`,
         method: 'POST',
         body: studioData,
       }),
@@ -12,7 +12,7 @@ const studioApiSlice = apiSlice.injectEndpoints({
 
     updateStudio: builder.mutation({
       query: ({ projectId, studioId, ...studioData }) => ({
-        url: `/studio/project/${projectId}/${studioId}/update/`,
+        url: `/studios/project/${projectId}/${studioId}/update/`,
         method: 'PATCH',
         body: studioData,
       }),

@@ -4,15 +4,18 @@ import { FiSettings, FiFile } from 'react-icons/fi';
 import { usePathname } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
+import { ProjectStatus } from '@/types/projects';
 
-interface ProjectDetailNavbarProps {
-}
+interface ProjectDetailNavbarProps {}
 
 const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
   const selectedProject = useSelector(selectSelectedProject);
   const projectId = selectedProject?.id;
+  const projectStatus = selectedProject?.status;
 
   const pathname = usePathname();
+
+  const isDraft = projectStatus === ProjectStatus.DRAFT;
 
   // Navigation items on the left side
   const navigation = [
@@ -51,13 +54,20 @@ const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
                     ? pathname === item.href
                     : pathname.startsWith(item.href);
 
+                  const isDisabled = isDraft && item.name !== 'Configuration';
+
                   return (
                     <Link
                       key={item.name}
-                      href={item.href}
+                      href={isDisabled ? '#' : item.href}
                       className={`text-sm ${
                         isActive ? 'text-primary' : 'text-slate-600'
-                      }`}
+                      } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={(e) => {
+                        if (isDisabled) {
+                          e.preventDefault();
+                        }
+                      }}
                     >
                       {item.name}
                     </Link>
@@ -71,13 +81,20 @@ const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {actions.map((action) => {
               const isActive = pathname.startsWith(action.href);
+              const isDisabled = isDraft && action.name !== 'Configuration';
+
               return (
                 <Link
                   key={action.name}
-                  href={action.href}
+                  href={isDisabled ? '#' : action.href}
                   className={`px-4 py-2 rounded-lg text-sm flex justify-center items-center ${
                     isActive ? 'text-primary' : 'hover:text-primary'
-                  }`}
+                  } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={(e) => {
+                    if (isDisabled) {
+                      e.preventDefault();
+                    }
+                  }}
                 >
                   <action.icon className="w-5 h-5 mr-2" />
                   {action.name}

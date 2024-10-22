@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { SidebarLayout } from '@/components/common';
 import Header from '@/components/header/Header';
 import ProjectDetailNavbar from '@/components/projects/detail/ProjectDetailNavbar';
@@ -20,15 +20,18 @@ import {
   useLazyGetProjectStudiosQuery,
   useLazyGetProjectGrammarQuery,
 } from '@/redux/features/projects/projectApiSlice';
+import { ProjectStatus } from '@/types/projects';
 
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { projectId } = useParams();
+  const pathname = usePathname();
   const [showChatBot, setShowChatBot] = useState(false);
   const selectedProject = useSelector(selectSelectedProject);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(true);
 
-  const pathname = usePathname();
   const isAli = pathname.includes('ali');
 
   const { data: project, isLoading, isError } = useGetProjectQuery(projectId as string, {
@@ -42,6 +45,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   const [fetchSegments] = useLazyGetProjectSegmentsQuery();
   const [fetchStudios] = useLazyGetProjectStudiosQuery();
   const [fetchGrammar] = useLazyGetProjectGrammarQuery();
+
   useEffect(() => {
     if (projectId && typeof projectId === 'string') {
       dispatch(setSelectedProject(parseInt(projectId)));
@@ -58,10 +62,17 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
         fetchStudios(project.id),
         fetchGrammar(project.id),
       ]).then(() => setIsDataLoaded(true));
-    }
-  }, [project, fetchKeywords, fetchQuestions, fetchCategories, fetchSegments, fetchStudios, fetchGrammar]);
 
-  if (isLoading || !isDataLoaded) {
+      // Check if redirection is needed
+      if (project.status === ProjectStatus.DRAFT && !pathname.includes('configuration')) {
+        router.replace(`/projects/${project.id}/configuration`);
+      } else {
+        setIsRedirecting(false);
+      }
+    }
+  }, [project, fetchKeywords, fetchQuestions, fetchCategories, fetchSegments, fetchStudios, fetchGrammar, router, pathname]);
+
+  if (isLoading || !isDataLoaded || isRedirecting) {
     return <div>Loading project data...</div>;
   }
 
