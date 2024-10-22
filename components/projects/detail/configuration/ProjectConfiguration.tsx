@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAppSelector } from '@/redux/hooks';
 import { selectSelectedProject, getStudios } from '@/redux/features/projects/projectSelectors';
 import StudioCardList from '@/components/configuration/StudioCardList';
@@ -91,15 +91,51 @@ const ProjectConfiguration: React.FC = () => {
     setStudioToDelete(null);
   };
 
+  const [leftColumnWidth, setLeftColumnWidth] = useState(66); // Initial width in percentage
+  const dragRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+      setLeftColumnWidth(Math.min(Math.max(newWidth, 30), 70)); // Limit between 30% and 70%
+    }
+  };
+
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
   return (
     <div className="max-w-screen-2xl mx-auto mt-5">
       <h3 className="text-base font-semibold leading-7 text-gray-900">Study Configuration</h3>
       <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">General information and objectives of the study.</p>
-      <div className='grid grid-cols-3 gap-4'>
-        <div className='col-span-2'>
-          <ProjectGeneralInfo/>
+      <div ref={containerRef} className="flex relative mt-4">
+        <div style={{ width: `${leftColumnWidth}%` }} className="pr-4">
+          <ProjectGeneralInfo />
         </div>
-        <div className='col-span-1'>
+        <div
+          ref={dragRef}
+          className="w-1 bg-gray-200 cursor-col-resize absolute top-0 bottom-0"
+          style={{ left: `${leftColumnWidth}%` }}
+          onMouseDown={handleMouseDown}
+        />
+        <div style={{ width: `${100 - leftColumnWidth}%` }} className="pl-4">
           <StudioCardList 
             studios={studios || []} 
             onUpload={handleUpload} 

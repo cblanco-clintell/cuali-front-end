@@ -12,6 +12,7 @@ interface ProjectState {
   selectedProjectId: number | null;
   selectedObjectiveIndex: number | null;
   selectedQuestionIndex: number | null;
+  selectedStudioIds: number[];
 }
 
 const initialState: ProjectState = {
@@ -19,6 +20,7 @@ const initialState: ProjectState = {
   selectedProjectId: null,
   selectedObjectiveIndex: null,
   selectedQuestionIndex: 0,
+  selectedStudioIds: [],
 };
 
 const projectSlice = createSlice({
@@ -74,6 +76,9 @@ const projectSlice = createSlice({
         project.grammar = action.payload.grammar;
       }
     },
+    setSelectedStudios(state, action: PayloadAction<number[]>) {
+      state.selectedStudioIds = action.payload;
+    },
   },
 });
 
@@ -88,6 +93,7 @@ export const {
   updateProjectStudios,
   setSelectedQuestion,
   updateProjectGrammar,
+  setSelectedStudios,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

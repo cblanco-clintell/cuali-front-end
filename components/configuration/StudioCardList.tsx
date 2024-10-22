@@ -15,13 +15,13 @@ const StudioCardList: React.FC<StudioCardListProps> = ({ studios, onUpload, onAd
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium leading-6 text-gray-900">Studios</h3>
+        <h3 className="text-sm font-medium leading-6 text-gray-900">Groups</h3>
         <button
           onClick={onAddStudio}
           className="inline-flex items-center rounded-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
         >
           <FiPlus className="w-4 h-4 mr-1" />
-          Add Studio
+          Add Group
         </button>
       </div>
       {studios.map((studio) => (

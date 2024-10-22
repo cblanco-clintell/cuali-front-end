@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Keywords from './Keywords';
 import VerbatimList from './VerbatimList';
 import { useSelector } from 'react-redux';
-import { selectCurrentCategories } from '@/redux/features/projects/projectSelectors';
+import { selectKeywordCategories } from '@/redux/features/projects/projectSelectors';
 import { Category } from '@/types/categories';
 import { Keyword } from '@/types/keywords';
 
 const MainCategories: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedKeywords, setSelectedKeywords] = useState<Keyword[]>([]);
-  const categories = useSelector(selectCurrentCategories);
+  const categories = useSelector(selectKeywordCategories);
 
   useEffect(() => {
     if (categories && categories.length > 0 && !selectedCategory) {
@@ -37,7 +37,7 @@ const MainCategories: React.FC = () => {
       <div className="w-[250px] min-w-[250px] max-w-[250px] bg-gray-50 rounded-lg p-3">
         <p className="text-slate-700 text-sm font-semibold">Categories</p>
         <div className="mt-3">
-          {categories?.map((category: Category) => (
+          {categories.map((category: Category) => (
             <div
               key={category.name}
               onClick={() => handleCategorySelect(category)}
@@ -63,7 +63,7 @@ const MainCategories: React.FC = () => {
             {selectedKeywords.length > 0 && <VerbatimList keywords={selectedKeywords} />}
           </>
         ) : (
-          <div className="text-gray-500">Loading categories...</div>
+          <div className="text-gray-500">No categories with keywords available.</div>
         )}
       </div>
     </div>

@@ -1,14 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useAppSelector } from '@/redux/hooks';
-import { selectProjectGrammar } from '@/redux/features/projects/projectSelectors';
+import { selectProjectGrammar, selectSelectedStudioIds } from '@/redux/features/projects/projectSelectors';
 import { GrammarData, GrammarToken } from '@/types/grammar';
 import { FiList, FiCloud, FiMaximize2 } from "react-icons/fi";
 import Card from '@/components/common/Card';
 import GrammarWordCloud from '@/components/grammar/GrammarWordCloud';
-
-interface GrammarSectionProps {
-  selectedStudioId: number;
-}
 
 const categoryOrder = ['adj', 'noun', 'verb', 'other'] as const;
 
@@ -19,7 +15,9 @@ const categoryTitles: Record<typeof categoryOrder[number], string> = {
   other: "Other Words"
 };
 
-const GrammarSection: React.FC<GrammarSectionProps> = ({ selectedStudioId }) => {
+const GrammarSection: React.FC = () => {
+  const selectedStudioIds = useAppSelector(selectSelectedStudioIds);
+  const selectedStudioId = selectedStudioIds[0]; // Use the first selected studio
   const studioGrammar = useAppSelector(state => selectProjectGrammar(state, selectedStudioId));
   const [viewModes, setViewModes] = useState<Record<string, 'list' | 'cloud'>>({});
   const [showTranslations, setShowTranslations] = useState<Record<string, boolean>>({});
@@ -42,7 +40,7 @@ const GrammarSection: React.FC<GrammarSectionProps> = ({ selectedStudioId }) => 
     <ul className="list-disc pl-5 overflow-y-auto h-[300px]">
       {tokens.map((token, index) => (
         <li key={index} className="text-gray-700">
-          {showTranslation ? token.translation : token.token} - Count: {token.count}
+          {showTranslation ? token.token : token.translation} - {token.count}
         </li>
       ))}
     </ul>

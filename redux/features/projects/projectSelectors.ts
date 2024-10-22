@@ -11,6 +11,7 @@ export const selectProjects = (state: RootState) => state.projects.projects || [
 export const selectSelectedProjectId = (state: RootState) => state.projects.selectedProjectId || null;
 export const selectSelectedObjectiveIndex = (state: RootState) => state.projects.selectedObjectiveIndex || null;
 export const selectSelectedQuestionIndex = (state: RootState) => state.projects.selectedQuestionIndex;
+export const selectSelectedStudioIds = (state: RootState) => state.projects.selectedStudioIds;
 
 // Memoized selector to get the selected project
 export const selectSelectedProject = createSelector(
@@ -77,30 +78,41 @@ export const getQuestions = createSelector(
 )
 
 export const selectSelectedKeywords = createSelector(
-  [selectSelectedProject, selectSelectedQuestion],
-  (selectedProject, selectedQuestion) => {
+  [selectSelectedProject, selectSelectedQuestion, selectSelectedStudioIds],
+  (selectedProject, selectedQuestion, selectedStudioIds) => {
     if (!selectedProject || !selectedQuestion) return [];
     
+    let filteredKeywords = selectedProject.keywords || [];
+
+    // Filter by selected question
     const questionIds = selectedQuestion.questions_ids;
+    filteredKeywords = filteredKeywords.filter((keyword: Keyword) =>
+      keyword.question_ids.some((id: number) => questionIds.includes(id))
+    );
 
-    const filteredKeywords = selectedProject.keywords?.filter((keyword: Keyword) => {
-      const hasMatchingQuestionId = keyword.question_ids.some((id: number) => questionIds.includes(id));
-      return hasMatchingQuestionId;
-    }) || [];
+    // Filter by selected studios
+    if (selectedStudioIds && selectedStudioIds.length > 0) {
+      console.log("selectedStudioIds", selectedStudioIds);
+      filteredKeywords = filteredKeywords.filter((keyword: Keyword) => {
+        // Get all studio IDs from the keyword
+        console.log("keyword", keyword);
+        const keywordStudioIds = keyword.studio_ids;
+        console.log("keywordStudioIds", keywordStudioIds);
+        
+        // Check if any of the keyword's studio IDs are in the selected studios
+        return keywordStudioIds.some(id => selectedStudioIds.includes(id));
+      });
+    }
 
-
+    // Sort keywords by valence and sentiment
     const valenceOrder = ['positive', 'neutral', 'negative'];
-
-    const sortedKeywords = filteredKeywords.sort((a: Keyword, b: Keyword) => {
-      // First, sort by valence
+    filteredKeywords.sort((a: Keyword, b: Keyword) => {
       const valenceComparison = valenceOrder.indexOf(a.valence) - valenceOrder.indexOf(b.valence);
       if (valenceComparison !== 0) return valenceComparison;
-
-      // If valence is the same, sort by sentiment (higher first)
       return b.sentiment - a.sentiment;
     });
-
-    return sortedKeywords;
+    console.log(filteredKeywords);
+    return filteredKeywords;
   }
 );
 
@@ -303,5 +315,26 @@ export const selectProjectGrammar = createSelector(
     }
 
     return selectedProject.grammar;
+  }
+);
+
+// Add this new selector at the end of the file
+export const selectKeywordCategories = createSelector(
+  [
+    selectSelectedProject,
+    selectSelectedKeywords,
+  ],
+  (selectedProject, selectedKeywords) => {
+    if (!selectedProject || !selectedKeywords) return [];
+
+    // Get all unique category IDs from the selected keywords
+    const uniqueCategoryIds = Array.from(new Set(
+      selectedKeywords.flatMap((keyword: Keyword) => keyword.categories_ids)
+    ));
+
+    // Filter the project categories to only include those present in the keywords
+    return selectedProject.categories?.filter((category: Category) => 
+      category.category_ids.some(id => uniqueCategoryIds.includes(id))
+    ) || [];
   }
 );

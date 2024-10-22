@@ -6,4 +6,6 @@ export interface Keyword {
   categories_ids: number[];
   segments_ids: number[];
   question_ids: number[];
+  studio_document_ids: number[];
+  studio_ids: number[];
 }
