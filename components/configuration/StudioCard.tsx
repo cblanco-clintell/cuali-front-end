@@ -23,7 +23,7 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onUpload, onEdit, onDel
   };
 
   return (
-    <div className="mb-2 border border-gray-300 rounded-lg">
+    <div className="border border-gray-300 rounded-lg">
       <div className="flex justify-between items-center p-3">
         <button
           onClick={toggleOpen}

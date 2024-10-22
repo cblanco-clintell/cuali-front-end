@@ -13,7 +13,7 @@ interface StudioCardListProps {
 
 const StudioCardList: React.FC<StudioCardListProps> = ({ studios, onUpload, onAddStudio, onEditStudio, onDeleteStudio }) => {
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-sm font-medium leading-6 text-gray-900">Groups</h3>
         <button
@@ -24,15 +24,17 @@ const StudioCardList: React.FC<StudioCardListProps> = ({ studios, onUpload, onAd
           Add Group
         </button>
       </div>
-      {studios.map((studio) => (
-        <StudioCard 
-          key={studio.id} 
-          studio={studio} 
-          onUpload={onUpload}
-          onEdit={() => onEditStudio(studio)}
-          onDelete={() => onDeleteStudio(studio)}
-        />
-      ))}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-4">
+        {studios.map((studio) => (
+          <StudioCard 
+            key={studio.id} 
+            studio={studio} 
+            onUpload={onUpload}
+            onEdit={() => onEditStudio(studio)}
+            onDelete={() => onDeleteStudio(studio)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
