@@ -28,7 +28,7 @@ const ChatBotSidebar: React.FC<ChatBotSidebarProps> = ({
   handleToggleSaved,
   handleNewConversation, // Get the function as a prop
 }) => {
-  if (isLoading) return <p>Loading conversations...</p>;
+  if (isLoading) return <p></p>;
   if (error) return <p>Error loading conversations.</p>;
 
   return (

@@ -8,7 +8,7 @@ interface GrammarWordCloudProps {
   height: number;
   tokens: GrammarToken[];
   category: string;
-  showTranslation: boolean;
+  showSpanish: boolean;
 }
 
 const categoryColors = {
@@ -29,7 +29,7 @@ interface WordCloudWord extends GrammarToken {
   size: number;
 }
 
-const GrammarWordCloud: React.FC<GrammarWordCloudProps> = ({ height, tokens, category, showTranslation }) => {
+const GrammarWordCloud: React.FC<GrammarWordCloudProps> = ({ height, tokens, category, showSpanish }) => {
   const [spiralType] = useState<SpiralType>('archimedean');
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
@@ -50,7 +50,7 @@ const GrammarWordCloud: React.FC<GrammarWordCloudProps> = ({ height, tokens, cat
 
   const wordcloudWords: WordCloudWord[] = tokens.map(token => ({
     ...token,
-    text: showTranslation ? token.translation : token.token,
+    text: showSpanish ? token.translation : token.token,
     size: fontScale(token.count)
   }));
 

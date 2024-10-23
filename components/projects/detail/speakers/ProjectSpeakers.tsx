@@ -29,22 +29,11 @@ const ProjectSpeakers: React.FC<ProjectSpeakersProps> = () => {
   return (
     <div className="max-w-screen-xl mx-auto my-5">
       <div className="mb-4">
-        <StudioSelector
-          selectedStudioId={selectedStudioId}
-          onStudioSelect={setSelectedStudioId}
-        />
+        <StudioSelector showAllOption={false} />
       </div>
       <div className="grid grid-cols-1 gap-4">
-        {/* <Card title="Speaker Rename" className="mt-5">
-          <SpeakerRename
-              selectedStudioId={selectedStudioId}
-              renamedSpeakers={renamedSpeakers}
-              onRenameSpeaker={handleRenameSpeaker}
-            />
-        </Card> */}
         <Card title="Speakers" className="mt-5">
         <SpeakerTime
-          selectedStudioId={selectedStudioId}
           renamedSpeakers={renamedSpeakers}
           onRenameSpeaker={handleRenameSpeaker}
           />

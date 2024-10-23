@@ -17,10 +17,23 @@ const studioApiSlice = apiSlice.injectEndpoints({
         body: studioData,
       }),
     }),
+
+    uploadStudioDocument: builder.mutation({
+      query: ({ studioId, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: `/studios/${studioId}/upload/`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+    }),
   }),
 });
 
 export const {
   useCreateStudioMutation,
   useUpdateStudioMutation,
+  useUploadStudioDocumentMutation,
 } = studioApiSlice;

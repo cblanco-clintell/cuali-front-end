@@ -9,8 +9,10 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  const url = project.status === ProjectStatus.DRAFT ? `/projects/${project.id}/configuration` : `/projects/${project.id}`;
+  
   return (
-    <Link href={`/projects/${project.id}`} className="block" key={project.id}>
+    <Link href={url} className="block" key={project.id}>
     <article className="flex flex-col px-3 p-4 bg-white rounded-lg shadow-md">
       {/* Project Header */}
       <header className="">

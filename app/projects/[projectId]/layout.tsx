@@ -54,14 +54,20 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (project) {
-      Promise.all([
-        fetchQuestions(project.id),
-        fetchKeywords(project.id),
-        fetchCategories(project.id),
-        fetchSegments(project.id),
-        fetchStudios(project.id),
-        fetchGrammar(project.id),
-      ]).then(() => setIsDataLoaded(true));
+      if (project.status === ProjectStatus.DRAFT) {
+        // For draft projects, only fetch studios
+        fetchStudios(project.id).then(() => setIsDataLoaded(true));
+      } else {
+        // For non-draft projects, fetch all data
+        Promise.all([
+          fetchQuestions(project.id),
+          fetchKeywords(project.id),
+          fetchCategories(project.id),
+          fetchSegments(project.id),
+          fetchStudios(project.id),
+          fetchGrammar(project.id),
+        ]).then(() => setIsDataLoaded(true));
+      }
 
       // Check if redirection is needed
       if (project.status === ProjectStatus.DRAFT && !pathname.includes('configuration')) {

@@ -19,7 +19,7 @@ const ProjectEmotions: React.FC<ProjectEmotionsProps> = ({
           <ObjectiveSelector/>
         </div>
         <div className='mt-3'>
-          <StudioSelector/>
+          <StudioSelector showAllOption={true} />
         </div>
       </div>
       <Card title="General Emotions" className="mt-5">

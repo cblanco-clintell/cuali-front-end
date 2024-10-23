@@ -1,24 +1,25 @@
 'use client'
 import React, { useState } from 'react';
 import { FiFile, FiChevronDown, FiChevronUp, FiUpload, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { StudioModel, StudioDocument } from '@/types/studios'; // Adjust the import path as needed
+import { StudioModel } from '@/types/studios'; // Adjust the import path as needed
+import { useUploadStudioDocumentMutation } from '@/redux/features/studios/studioApiSlice';
 
 interface StudioCardProps {
   studio: StudioModel;
-  onUpload: (studioId: number, file: File) => void;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-const StudioCard: React.FC<StudioCardProps> = ({ studio, onUpload, onEdit, onDelete }) => {
+const StudioCard: React.FC<StudioCardProps> = ({ studio, onEdit, onDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [uploadStudioDocument, { isLoading: isUploading }] = useUploadStudioDocumentMutation();
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
-  const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      onUpload(studio.id, file);
+      await uploadStudioDocument({ studioId: studio.id, file });
     }
   };
 
@@ -65,7 +66,7 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onUpload, onEdit, onDel
       {isOpen && (
         <div className="p-3 bg-white rounded-b-lg shadow-sm mt-0 border-t">
           <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
-            {studio.studio_documents?.map((document: StudioDocument) => (
+            {studio.studio_documents?.map((document: any) => (
               <li key={document.id} className="flex items-center justify-between py-2 pl-4 pr-5 text-sm leading-6">
                 <div className="flex w-0 flex-1 items-center">
                   <FiFile aria-hidden="true" className="h-5 w-5 flex-shrink-0 text-gray-400" />
@@ -107,3 +108,4 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onUpload, onEdit, onDel
 };
 
 export default StudioCard;
+

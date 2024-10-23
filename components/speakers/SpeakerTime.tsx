@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useAppSelector } from '@/redux/hooks';
-import { selectOrganizedSegments } from '@/redux/features/projects/projectSelectors';
+import { selectOrganizedSegments, selectSelectedStudioIds } from '@/redux/features/projects/projectSelectors';
 import { FiEdit2 } from 'react-icons/fi';
 
 interface SpeakerTimeProps {
-  selectedStudioId: number | null;
   renamedSpeakers: Record<string, string>;
   onRenameSpeaker: (originalName: string, newName: string) => void;
 }
 
-const SpeakerTime: React.FC<SpeakerTimeProps> = ({ selectedStudioId, renamedSpeakers, onRenameSpeaker }) => {
+const SpeakerTime: React.FC<SpeakerTimeProps> = ({ renamedSpeakers, onRenameSpeaker }) => {
+  const selectedStudioId = useAppSelector(selectSelectedStudioIds)[0];
   const organizedSegments = useAppSelector(selectOrganizedSegments);
   const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
   const [newName, setNewName] = useState('');

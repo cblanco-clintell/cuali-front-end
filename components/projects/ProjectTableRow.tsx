@@ -2,22 +2,17 @@ import React from 'react';
 import { formatDate } from '@/utils/formatDate';
 import { FiFolder } from "react-icons/fi";
 import Link from 'next/link';
+import { ProjectModel, ProjectStatus } from '@/types/projects';
 
 interface ProjectTableRowProps {
-  project: {
-    id: number;
-    created: string;
-    name: string;
-    status: string;
-    groupsCount: number;
-    groupsStatus: string;
-    user: number;
-  };
+  project: ProjectModel;
 }
 
 export const ProjectTableRow: React.FC<ProjectTableRowProps> = ({ project }) => {
+  const url = project.status === ProjectStatus.DRAFT ? `/projects/${project.id}/configuration` : `/projects/${project.id}`;
+
   return (
-    <Link href={`/projects/${project.id}`} className="block" key={project.id}>
+    <Link href={url} className="block" key={project.id}>
       <div className="h-16 w-full">
         {/* Using grid with 4 columns */}
         <div className="grid grid-cols-[3fr_1fr_1fr_auto] h-16 px-3 py-2 bg-white rounded-lg hover:bg-gray-200 transition">

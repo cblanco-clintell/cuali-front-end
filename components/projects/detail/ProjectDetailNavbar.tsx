@@ -21,7 +21,7 @@ const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
   const navigation = [
     { name: 'Summary', href: `/projects/${projectId}` },
     { name: 'Emotions', href: `/projects/${projectId}/emotions` },
-    { name: 'Keywords', href: `/projects/${projectId}/keywords` },
+    { name: 'Keywords', href: `/projects/${projectId}/grammar` },
     { name: 'Speakers', href: `/projects/${projectId}/speakers` },
     { name: 'Ali', href: `/projects/${projectId}/ali` },
   ];
@@ -49,25 +49,22 @@ const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 {navigation.map((item) => {
-                  // For the Summary link, match exactly, for others allow partial matches
                   const isActive = item.name === 'Summary'
                     ? pathname === item.href
                     : pathname.startsWith(item.href);
 
-                  const isDisabled = isDraft && item.name !== 'Configuration';
+                  // Hide the button if it's disabled in draft mode
+                  if (isDraft && item.name !== 'Configuration') {
+                    return null;
+                  }
 
                   return (
                     <Link
                       key={item.name}
-                      href={isDisabled ? '#' : item.href}
+                      href={item.href}
                       className={`text-sm ${
                         isActive ? 'text-primary' : 'text-slate-600'
-                      } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      onClick={(e) => {
-                        if (isDisabled) {
-                          e.preventDefault();
-                        }
-                      }}
+                      }`}
                     >
                       {item.name}
                     </Link>
@@ -81,20 +78,19 @@ const ProjectDetailNavbar: React.FC<ProjectDetailNavbarProps> = () => {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {actions.map((action) => {
               const isActive = pathname.startsWith(action.href);
-              const isDisabled = isDraft && action.name !== 'Configuration';
+
+              // Hide the button if it's disabled in draft mode
+              if (isDraft && action.name !== 'Configuration') {
+                return null;
+              }
 
               return (
                 <Link
                   key={action.name}
-                  href={isDisabled ? '#' : action.href}
+                  href={action.href}
                   className={`px-4 py-2 rounded-lg text-sm flex justify-center items-center ${
                     isActive ? 'text-primary' : 'hover:text-primary'
-                  } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={(e) => {
-                    if (isDisabled) {
-                      e.preventDefault();
-                    }
-                  }}
+                  }`}
                 >
                   <action.icon className="w-5 h-5 mr-2" />
                   {action.name}
