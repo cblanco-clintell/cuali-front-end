@@ -67,6 +67,23 @@ const projectSlice = createSlice({
         project.studios = action.payload.studios;
       }
     },
+    updateProjectStudio(state, action: PayloadAction<{ projectId: number; studio: StudioModel }>) {
+      const project = state.projects.find(p => p.id === action.payload.projectId);
+      console.log("updateProjectStudio", action.payload);
+      if (project) {
+        const studioIndex = project.studios.findIndex(s => s.id === action.payload.studio.id);
+        console.log("studioIndex", studioIndex);
+        if (studioIndex !== -1) {
+          project.studios[studioIndex] = action.payload.studio;
+        }
+      }
+    },
+    addProjectStudio(state, action: PayloadAction<{ projectId: number; studio: StudioModel }>) {
+      const project = state.projects.find(p => p.id === action.payload.projectId);
+      if (project) {
+        project.studios.push(action.payload.studio);
+      }
+    },
     setSelectedQuestion(state, action: PayloadAction<number>) {
       state.selectedQuestionIndex = action.payload;
     },
@@ -91,9 +108,11 @@ export const {
   updateProjectCategories,
   updateProjectSegments,
   updateProjectStudios,
+  updateProjectStudio,
   setSelectedQuestion,
   updateProjectGrammar,
   setSelectedStudios,
+  addProjectStudio,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

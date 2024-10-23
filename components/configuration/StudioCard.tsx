@@ -1,8 +1,10 @@
 'use client'
 import React, { useState } from 'react';
-import { FiFile, FiChevronDown, FiChevronUp, FiUpload, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiFile, FiChevronDown, FiChevronUp, FiUpload, FiEdit2, FiTrash2, FiXCircle } from "react-icons/fi";
 import { StudioModel } from '@/types/studios'; // Adjust the import path as needed
 import { useUploadStudioDocumentMutation } from '@/redux/features/studios/studioApiSlice';
+import { useSelector } from 'react-redux';
+import { selectSelectedProject } from '@/redux/features/projects/projectSelectors';
 
 interface StudioCardProps {
   studio: StudioModel;
@@ -12,15 +14,33 @@ interface StudioCardProps {
 
 const StudioCard: React.FC<StudioCardProps> = ({ studio, onEdit, onDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [newFile, setNewFile] = useState<File | null>(null);
   const [uploadStudioDocument, { isLoading: isUploading }] = useUploadStudioDocumentMutation();
 
   const toggleOpen = () => setIsOpen(!isOpen);
+  const selectedProject = useSelector(selectSelectedProject);
 
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      await uploadStudioDocument({ studioId: studio.id, file });
+      setNewFile(file); // Update state to show new file before uploading
     }
+  };
+
+  const handleUpload = async () => {
+    console.log('Studio Id', studio.id);
+    if (newFile) {
+      await uploadStudioDocument({ 
+        projectId: selectedProject?.id,
+        studioId: studio.id, 
+        file: newFile 
+      });
+      setNewFile(null); // Clear the new file after upload
+    }
+  };
+
+  const cancelUpload = () => {
+    setNewFile(null); // Remove the selected file without uploading
   };
 
   return (
@@ -45,7 +65,7 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onEdit, onDelete }) => 
               type="file"
               className="hidden"
               accept="audio/*"
-              onChange={handleUpload}
+              onChange={handleFileSelection}
             />
           </label>
           <button
@@ -76,6 +96,20 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onEdit, onDelete }) => 
                 </div>
               </li>
             ))}
+            {newFile && (
+              <li className="flex items-center justify-between py-2 pl-4 pr-5 text-sm leading-6">
+                <div className="flex w-0 flex-1 items-center">
+                  <FiFile aria-hidden="true" className="h-5 w-5 flex-shrink-0 text-gray-400" />
+                  <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                    <span className="truncate font-medium text-xs">{newFile.name}</span>
+                    <button onClick={handleUpload} className="text-green-500 hover:text-green-700">Upload</button>
+                    <button onClick={cancelUpload} className="text-red-500 hover:text-red-700">
+                      <FiXCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </li>
+            )}
           </ul>
 
           <div className="mt-2">
@@ -96,7 +130,7 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onEdit, onDelete }) => 
                   type="file"
                   className="hidden"
                   accept="audio/*"
-                  onChange={handleUpload}
+                  onChange={handleFileSelection}
                 />
               </label>
             </div>
@@ -108,4 +142,3 @@ const StudioCard: React.FC<StudioCardProps> = ({ studio, onEdit, onDelete }) => 
 };
 
 export default StudioCard;
-

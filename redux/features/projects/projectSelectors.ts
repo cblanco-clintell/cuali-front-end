@@ -92,14 +92,8 @@ export const selectSelectedKeywords = createSelector(
 
     // Filter by selected studios
     if (selectedStudioIds && selectedStudioIds.length > 0) {
-      console.log("selectedStudioIds", selectedStudioIds);
       filteredKeywords = filteredKeywords.filter((keyword: Keyword) => {
-        // Get all studio IDs from the keyword
-        console.log("keyword", keyword);
-        const keywordStudioIds = keyword.studio_ids;
-        console.log("keywordStudioIds", keywordStudioIds);
-        
-        // Check if any of the keyword's studio IDs are in the selected studios
+        const keywordStudioIds = keyword.studio_ids;        
         return keywordStudioIds.some(id => selectedStudioIds.includes(id));
       });
     }
@@ -111,7 +105,6 @@ export const selectSelectedKeywords = createSelector(
       if (valenceComparison !== 0) return valenceComparison;
       return b.sentiment - a.sentiment;
     });
-    console.log(filteredKeywords);
     return filteredKeywords;
   }
 );

@@ -1,4 +1,5 @@
 import { apiSlice } from '../../services/apiSlice';
+import { updateProjectStudio } from '@/redux/features/projects/projectSlice';
 
 const studioApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -17,16 +18,25 @@ const studioApiSlice = apiSlice.injectEndpoints({
         body: studioData,
       }),
     }),
-
     uploadStudioDocument: builder.mutation({
-      query: ({ studioId, file }) => {
+      query: ({ projectId, studioId, file }) => {
         const formData = new FormData();
         formData.append('file', file);
         return {
-          url: `/studios/${studioId}/upload/`,
+          url: `/studios/project/${projectId}/${studioId}/upload/`,
           method: 'POST',
           body: formData,
         };
+      },
+      async onQueryStarted({ projectId, studioId }, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("Data uploaded", data);
+
+          dispatch(updateProjectStudio({ projectId: Number(projectId), studio: data.studio }));
+        } catch (error) {
+          console.error('Failed to upload document:', error);
+        }
       },
     }),
   }),
